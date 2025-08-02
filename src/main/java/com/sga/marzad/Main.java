@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+
 public class Main extends Application {
     private static Stage mainStage;
 
@@ -38,15 +39,19 @@ public class Main extends Application {
         try {
             FXMLLoader loader = new FXMLLoader(Main.class.getResource("/view/MainView.fxml"));
             Scene scene = new Scene(loader.load());
-            // Si querés el mismo css en la vista principal:
             scene.getStylesheets().add(Main.class.getResource("/css/estilos.css").toExternalForm());
 
             mainStage.setScene(scene);
             mainStage.setTitle("SGA – Menú Principal");
-            mainStage.setMaximized(true);
+            mainStage.setMaximized(true);   // ¡Asegúrate de esto!
+            mainStage.show();
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
         }
     }
+
+
+
+
 }
