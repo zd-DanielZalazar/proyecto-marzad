@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.sga.marzad.controller.MainController"
+            prefWidth="1024" prefHeight="768">
+    <top>
+        <HBox spacing="20" style="-fx-background-color: #1e4370;" alignment="CENTER_LEFT" prefHeight="70">
+            <Label text="LOGO" style="-fx-font-size: 32px; -fx-text-fill: #FFC845;"/>
+            <VBox alignment="CENTER_LEFT">
+                <Label fx:id="lblSistema" text="SIU Guaraní" style="-fx-font-size: 18px; -fx-text-fill: white;"/>
+                <Label fx:id="lblUsuario" text="Bienvenido, Usuario (ROL)" style="-fx-font-size: 14px; -fx-text-fill: #00B2A9;"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="lblReloj" style="-fx-font-size: 16px; -fx-text-fill: #E74483;"/>
+        </HBox>
+        <MenuBar fx:id="menuBar" style="-fx-background-color: #19335A;">
+            <!-- Se cargará desde código según rol -->
+        </MenuBar>
+    </top>
+    <center>
+        <VBox alignment="CENTER">
+            <Label text="Bienvenido al Sistema de Gestión Académica" style="-fx-font-size: 28px; -fx-text-fill: white;"/>
+            <Label text="Seleccione una opción del menú superior para continuar" style="-fx-font-size: 18px; -fx-text-fill: #FFC845;"/>
+        </VBox>
+    </center>
+    <bottom>
+        <HBox spacing="20" alignment="CENTER_RIGHT" style="-fx-background-color: #19335A; -fx-padding: 8 12;">
+            <Label fx:id="lblVersion" style="-fx-text-fill: #FFC845;"/>
+            <Label fx:id="lblAutor" text="MarZad" style="-fx-text-fill: #00B2A9;"/>
+            <Label fx:id="lblBdStatus" text="BD: OK" style="-fx-text-fill: white;"/>
+        </HBox>
+    </bottom>
+</BorderPane>

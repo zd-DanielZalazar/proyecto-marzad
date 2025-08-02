@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.sga.marzad.controller.SplashScreenController"
+           style="-fx-background-color: #1e4370;">
+    <VBox alignment="CENTER" spacing="20">
+        <Label text="SIU Guaraní" style="-fx-font-size: 36px; -fx-text-fill: #FFC845;"/>
+        <Label text="Sistema de Gestión Académica" style="-fx-font-size: 16px; -fx-text-fill: white;"/>
+        <Label fx:id="lblEstado" text="Conectando a base de datos..." style="-fx-font-size: 14px; -fx-text-fill: #00B2A9;"/>
+    </VBox>
+</StackPane>
