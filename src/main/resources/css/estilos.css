@@ -5,7 +5,7 @@
 
 /* Paneles blancos con sombra */
 .panel {
-    -fx-background-color: #fff;
+    -fx-background-color: transparent;
     -fx-background-radius: 8px;
     -fx-padding: 16 18 16 18;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.07), 10, 0.1, 0, 3);
@@ -148,6 +148,46 @@
     -fx-background-color: #2c4a72;
 }
 
+.panel {
+    -fx-background-color: #fff;
+    -fx-background-radius: 8px;
+    -fx-padding: 16;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.07), 10, 0.1, 0, 3);
+}
+
+.text-field {
+    -fx-background-radius: 8px;
+    -fx-border-color: #00B2A9;
+    -fx-padding: 6 8 6 8;
+}
+
+.btn-primary {
+    -fx-background-color: #00B2A9;
+    -fx-text-fill: white;
+    -fx-background-radius: 6px;
+}
+
+.btn-danger {
+    -fx-background-color: #E74483;
+    -fx-text-fill: white;
+}
+.table-panel {
+    -fx-background-color: transparent;
+    -fx-padding: 8;
+}
+.table-view .column-header {
+    -fx-background-color: #fff;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: #eaf5fa;
+}
+.table-row-cell:even {
+    -fx-background-color: #fff;
+}
 
 /* --------- Iconos --------- */
 /* Para Ikonli solo hace falta agregar la clase de botón y usar el graphicNode */

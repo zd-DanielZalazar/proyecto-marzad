@@ -39,15 +39,17 @@
                            styleClass="password-field"/>
         </GridPane>
 
-        <Button
-            text="Ingresar"
-            onAction="#onLogin"
-            styleClass="btn-primary"
-            maxWidth="180"
-            defaultButton="true">
-            <VBox.margin>
-                <Insets top="8" right="0" bottom="0" left="0"/>
-            </VBox.margin>
-        </Button>
+        <!-- Botón Ingresar -->
+        <Button text="Ingresar"
+                onAction="#onLogin"
+                styleClass="btn-primary"
+                maxWidth="180"
+                defaultButton="true"/>
+
+        <!-- Botón Registrarse -->
+        <Button text="Registrarse"
+                onAction="#onRegister"
+                styleClass="btn-accent"
+                maxWidth="180"/>
     </VBox>
 </StackPane>

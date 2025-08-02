@@ -6,71 +6,83 @@
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.sga.marzad.controller.AlumnosController"
-            prefWidth="800" prefHeight="600">
+            prefWidth="900" prefHeight="650"
+            styleClass="main-bg">
 
-  <!-- Tabla de Alumnos -->
-  <center>
-    <TableView fx:id="tableAlumnos" prefHeight="400">
-      <columns>
-        <TableColumn text="ID"             fx:id="colId"         prefWidth="50"/>
-        <TableColumn text="Usuario ID"    fx:id="colUsuario"    prefWidth="75"/>
-        <TableColumn text="Nombre"        fx:id="colNombre"     prefWidth="150"/>
-        <TableColumn text="Apellido"      fx:id="colApellido"   prefWidth="150"/>
-        <TableColumn text="DNI"           fx:id="colDni"        prefWidth="100"/>
-        <TableColumn text="Correo"        fx:id="colCorreo"     prefWidth="200"/>
-        <TableColumn text="F. Nacimiento" fx:id="colFecha"      prefWidth="100"/>
-        <TableColumn text="Género"        fx:id="colGenero"     prefWidth="75"/>
-        <TableColumn text="Habilitado"    fx:id="colHabilitado" prefWidth="75"/>
-      </columns>
-    </TableView>
-  </center>
+    <!-- TABLA -->
+    <center>
+        <TableView fx:id="tableAlumnos"
+                   prefHeight="400"
+                   styleClass="table-panel">
+            <columns>
+                <TableColumn text="ID"             fx:id="colId"         prefWidth="50"/>
+                <TableColumn text="Usuario ID"     fx:id="colUsuario"    prefWidth="75"/>
+                <TableColumn text="Nombre"         fx:id="colNombre"     prefWidth="150"/>
+                <TableColumn text="Apellido"       fx:id="colApellido"   prefWidth="150"/>
+                <TableColumn text="DNI"            fx:id="colDni"        prefWidth="100"/>
+                <TableColumn text="Correo"         fx:id="colCorreo"     prefWidth="200"/>
+                <TableColumn text="F. Nacimiento"  fx:id="colFecha"      prefWidth="100"/>
+                <TableColumn text="Género"         fx:id="colGenero"     prefWidth="75"/>
+                <TableColumn text="Habilitado"     fx:id="colHabilitado" prefWidth="75"/>
+            </columns>
+        </TableView>
+    </center>
 
-  <!-- Formulario y botones -->
-  <bottom>
-    <VBox spacing="5">
-      <!-- CORREGIDO: padding ahora es un Insets válido -->
-      <padding>
-        <Insets top="10" right="10" bottom="10" left="10"/>
-      </padding>
+    <!-- FORMULARIO Y BOTONES -->
+    <bottom>
+        <VBox spacing="12" styleClass="panel">
+            <padding>
+                <Insets top="12" right="20" bottom="12" left="20"/>
+            </padding>
 
-      <GridPane hgap="10" vgap="10">
-        <columnConstraints>
-          <ColumnConstraints halignment="RIGHT" minWidth="80"/>
-          <ColumnConstraints hgrow="ALWAYS"/>
-          <ColumnConstraints halignment="RIGHT" minWidth="80"/>
-          <ColumnConstraints hgrow="ALWAYS"/>
-        </columnConstraints>
+            <!-- FORMULARIO -->
+            <GridPane hgap="12" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints halignment="RIGHT" minWidth="100"/>
+                    <ColumnConstraints hgrow="ALWAYS"/>
+                    <ColumnConstraints halignment="RIGHT" minWidth="100"/>
+                    <ColumnConstraints hgrow="ALWAYS"/>
+                </columnConstraints>
 
-        <Label text="Usuario ID:"    GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-        <TextField fx:id="txtUsuarioId"    GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                <Label text="Usuario ID:"   GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <TextField fx:id="txtUsuarioId" styleClass="text-field"
+                           GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-        <Label text="Nombre:"        GridPane.rowIndex="0" GridPane.columnIndex="2"/>
-        <TextField fx:id="txtNombre"        GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+                <Label text="Nombre:"       GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                <TextField fx:id="txtNombre" styleClass="text-field"
+                           GridPane.rowIndex="0" GridPane.columnIndex="3"/>
 
-        <Label text="Apellido:"      GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-        <TextField fx:id="txtApellido"      GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                <Label text="Apellido:"     GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <TextField fx:id="txtApellido" styleClass="text-field"
+                           GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-        <Label text="DNI:"           GridPane.rowIndex="1" GridPane.columnIndex="2"/>
-        <TextField fx:id="txtDni"           GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+                <Label text="DNI:"          GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+                <TextField fx:id="txtDni" styleClass="text-field"
+                           GridPane.rowIndex="1" GridPane.columnIndex="3"/>
 
-        <Label text="Correo:"        GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-        <TextField fx:id="txtCorreo"        GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                <Label text="Correo:"       GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <TextField fx:id="txtCorreo" styleClass="text-field"
+                           GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
-        <Label text="Fecha Nac.:"    GridPane.rowIndex="2" GridPane.columnIndex="2"/>
-        <DatePicker fx:id="dpFechaNac"      GridPane.rowIndex="2" GridPane.columnIndex="3"/>
+                <Label text="Fecha Nac.:"   GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+                <DatePicker fx:id="dpFechaNac"
+                            GridPane.rowIndex="2" GridPane.columnIndex="3"/>
 
-        <Label text="Género:"        GridPane.rowIndex="3" GridPane.columnIndex="0"/>
-        <TextField fx:id="txtGenero"        GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                <Label text="Género:"       GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                <TextField fx:id="txtGenero" styleClass="text-field"
+                           GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
-        <Label text="Habilitado:"    GridPane.rowIndex="3" GridPane.columnIndex="2"/>
-        <CheckBox fx:id="cbHabilitado"     GridPane.rowIndex="3" GridPane.columnIndex="3"/>
-      </GridPane>
+                <Label text="Habilitado:"   GridPane.rowIndex="3" GridPane.columnIndex="2"/>
+                <CheckBox fx:id="cbHabilitado"
+                          GridPane.rowIndex="3" GridPane.columnIndex="3"/>
+            </GridPane>
 
-      <HBox spacing="10" alignment="CENTER_RIGHT">
-        <Button text="Nuevo"    onAction="#onNew"/>
-        <Button text="Guardar"  onAction="#onSave"/>
-        <Button text="Eliminar" onAction="#onDelete"/>
-      </HBox>
-    </VBox>
-  </bottom>
+            <!-- BOTONES -->
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+                <Button text="Nuevo"    onAction="#onNew"    styleClass="btn-primary"/>
+                <Button text="Guardar"  onAction="#onSave"   styleClass="btn-primary"/>
+                <Button text="Eliminar" onAction="#onDelete" styleClass="btn-danger"/>
+            </HBox>
+        </VBox>
+    </bottom>
 </BorderPane>

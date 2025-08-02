@@ -3,15 +3,13 @@ package com.sga.marzad.controller;
 import com.sga.marzad.model.Alumno;
 import com.sga.marzad.viewmodel.AlumnoViewModel;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 public class AlumnosController {
 
@@ -39,19 +37,19 @@ public class AlumnosController {
 
     @FXML
     public void initialize() {
-        // Configurar columnas
-        colId.setCellValueFactory(cell -> new SimpleIntegerProperty(cell.getValue().getId()).asObject());
-        colUsuario.setCellValueFactory(cell -> new SimpleIntegerProperty(cell.getValue().getUsuarioId()).asObject());
-        colNombre.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getNombre()));
-        colApellido.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getApellido()));
-        colDni.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getDni()));
-        colCorreo.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getCorreo()));
-        colFecha.setCellValueFactory(cell -> new SimpleObjectProperty<>(cell.getValue().getFechaNac()));
-        colGenero.setCellValueFactory(cell -> new SimpleStringProperty(cell.getValue().getGenero()));
+        // Configurar columnas con PropertyValueFactory
+        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
+        colUsuario.setCellValueFactory(new PropertyValueFactory<>("usuarioId"));
+        colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
+        colApellido.setCellValueFactory(new PropertyValueFactory<>("apellido"));
+        colDni.setCellValueFactory(new PropertyValueFactory<>("dni"));
+        colCorreo.setCellValueFactory(new PropertyValueFactory<>("correo"));
+        colFecha.setCellValueFactory(new PropertyValueFactory<>("fechaNac"));
+        colGenero.setCellValueFactory(new PropertyValueFactory<>("genero"));
+
         colHabilitado.setCellValueFactory(cell -> new SimpleBooleanProperty(cell.getValue().isHabilitado()));
         colHabilitado.setCellFactory(CheckBoxTableCell.forTableColumn(colHabilitado));
 
-        // Poner datos en la tabla
         tableAlumnos.setItems(vm.getAlumnos());
 
         // Listener de selección
@@ -85,13 +83,19 @@ public class AlumnosController {
     private void onSave() {
         try {
             int usuarioId = Integer.parseInt(txtUsuarioId.getText());
-            String nombre  = txtNombre.getText();
-            String apellido= txtApellido.getText();
-            String dni     = txtDni.getText();
-            String correo  = txtCorreo.getText();
+            String nombre = txtNombre.getText().trim();
+            String apellido = txtApellido.getText().trim();
+            String dni = txtDni.getText().trim();
+            String correo = txtCorreo.getText().trim();
             LocalDate fnac = dpFechaNac.getValue();
-            String genero  = txtGenero.getText();
-            boolean hab    = cbHabilitado.isSelected();
+            String genero = txtGenero.getText().trim();
+            boolean hab = cbHabilitado.isSelected();
+
+            // Validación simple
+            if (nombre.isBlank() || apellido.isBlank()) {
+                showAlert(Alert.AlertType.WARNING, "Nombre y Apellido son obligatorios.");
+                return;
+            }
 
             Alumno sel = tableAlumnos.getSelectionModel().getSelectedItem();
             boolean ok;
@@ -111,12 +115,14 @@ public class AlumnosController {
             }
 
             if (ok) {
-                new Alert(Alert.AlertType.INFORMATION, "Guardado exitoso").showAndWait();
+                showAlert(Alert.AlertType.INFORMATION, "Guardado exitoso.");
+                tableAlumnos.getSelectionModel().clearSelection();
+                clearForm();
             } else {
-                new Alert(Alert.AlertType.ERROR, "Error al guardar").showAndWait();
+                showAlert(Alert.AlertType.ERROR, "Error al guardar.");
             }
         } catch (NumberFormatException e) {
-            new Alert(Alert.AlertType.ERROR, "Usuario ID debe ser numérico").showAndWait();
+            showAlert(Alert.AlertType.ERROR, "Usuario ID debe ser numérico.");
         }
     }
 
@@ -124,15 +130,22 @@ public class AlumnosController {
     private void onDelete() {
         Alumno sel = tableAlumnos.getSelectionModel().getSelectedItem();
         if (sel != null) {
-            boolean ok = vm.eliminarAlumno(sel);
-            if (ok) {
-                new Alert(Alert.AlertType.INFORMATION, "Eliminado exitoso").showAndWait();
-                clearForm();
-            } else {
-                new Alert(Alert.AlertType.ERROR, "Error al eliminar").showAndWait();
+            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "¿Eliminar este alumno?", ButtonType.YES, ButtonType.NO);
+            confirm.setHeaderText(null);
+            Optional<ButtonType> result = confirm.showAndWait();
+
+            if (result.isPresent() && result.get() == ButtonType.YES) {
+                boolean ok = vm.eliminarAlumno(sel);
+                if (ok) {
+                    showAlert(Alert.AlertType.INFORMATION, "Eliminado exitosamente.");
+                    tableAlumnos.getSelectionModel().clearSelection();
+                    clearForm();
+                } else {
+                    showAlert(Alert.AlertType.ERROR, "Error al eliminar.");
+                }
             }
         } else {
-            new Alert(Alert.AlertType.WARNING, "Seleccione un alumno").showAndWait();
+            showAlert(Alert.AlertType.WARNING, "Seleccione un alumno.");
         }
     }
 
@@ -145,5 +158,12 @@ public class AlumnosController {
         dpFechaNac.setValue(null);
         txtGenero.clear();
         cbHabilitado.setSelected(false);
+    }
+
+    private void showAlert(Alert.AlertType type, String message) {
+        Alert alert = new Alert(type);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

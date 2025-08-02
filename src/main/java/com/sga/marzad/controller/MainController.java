@@ -128,9 +128,12 @@ public class MainController implements Initializable {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlRuta));
             Parent root = loader.load();
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(Main.class.getResource("/css/estilos.css").toExternalForm());
+
             Stage stage = new Stage();
             stage.setTitle(titulo);
-            stage.setScene(new Scene(root));
+            stage.setScene(scene);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setResizable(false);
             stage.showAndWait();
@@ -139,5 +142,6 @@ public class MainController implements Initializable {
             mostrarAlertaInfo("No se pudo abrir la vista.");
         }
     }
+
 
 }
