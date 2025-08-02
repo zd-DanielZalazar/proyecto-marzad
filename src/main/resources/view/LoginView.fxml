@@ -1,20 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.sga.marzad.controller.LoginController"
-            prefWidth="300" prefHeight="180">
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.sga.marzad.controller.LoginController"
+           prefWidth="380" prefHeight="480"
+           styleClass="main-bg">
 
-  <Label text="Usuario:"     layoutX="20"  layoutY="30"/>
-  <TextField fx:id="txtUser" layoutX="100" layoutY="30"/>
+    <VBox spacing="18" alignment="CENTER"
+          maxWidth="310"
+          styleClass="panel">
 
-  <Label text="Clave:"       layoutX="20"  layoutY="70"/>
-  <PasswordField fx:id="txtPass" layoutX="100" layoutY="70"/>
+        <!-- Imagen del logo -->
+        <ImageView fx:id="logoImage"
+                   fitWidth="220" fitHeight="220"
+                   preserveRatio="true"
+                   pickOnBounds="true">
+            <image>
+                <Image url="@/img/logo1.png"/>
+            </image>
+        </ImageView>
 
-  <Button text="Ingresar"
-          onAction="#onLogin"
-          layoutX="110" layoutY="120"
-          prefWidth="80"/>
-</AnchorPane>
+        <Label text="Ingreso al Sistema" styleClass="label-title"/>
+
+        <GridPane hgap="10" vgap="12">
+            <Label text="Usuario:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <TextField fx:id="txtUser" promptText="Usuario"
+                       GridPane.rowIndex="0" GridPane.columnIndex="1"
+                       styleClass="text-field"/>
+
+            <Label text="Clave:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <PasswordField fx:id="txtPass" promptText="Contraseña"
+                           GridPane.rowIndex="1" GridPane.columnIndex="1"
+                           styleClass="password-field"/>
+        </GridPane>
+
+        <Button
+            text="Ingresar"
+            onAction="#onLogin"
+            styleClass="btn-primary"
+            maxWidth="180"
+            defaultButton="true">
+            <VBox.margin>
+                <Insets top="8" right="0" bottom="0" left="0"/>
+            </VBox.margin>
+        </Button>
+    </VBox>
+</StackPane>
