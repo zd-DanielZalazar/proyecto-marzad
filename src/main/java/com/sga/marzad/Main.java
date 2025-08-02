@@ -22,12 +22,11 @@ public class Main extends Application {
         try {
             FXMLLoader loader = new FXMLLoader(Main.class.getResource("/view/LoginView.fxml"));
             Scene scene = new Scene(loader.load());
-            // ¡Agregamos el css!
             scene.getStylesheets().add(Main.class.getResource("/css/estilos.css").toExternalForm());
 
             mainStage.setScene(scene);
             mainStage.setTitle("SGA – Login");
-            mainStage.setResizable(false);
+            mainStage.setResizable(true);
             mainStage.show();
         } catch (Exception e) {
             e.printStackTrace();

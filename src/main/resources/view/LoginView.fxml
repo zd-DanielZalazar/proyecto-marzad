@@ -10,7 +10,9 @@
            fx:controller="com.sga.marzad.controller.LoginController"
            prefWidth="380" prefHeight="480"
            styleClass="main-bg">
-
+<padding>
+        <Insets top="32" right="32" bottom="32" left="32"/>
+    </padding>
     <VBox spacing="18" alignment="CENTER"
           maxWidth="310"
           styleClass="panel">
