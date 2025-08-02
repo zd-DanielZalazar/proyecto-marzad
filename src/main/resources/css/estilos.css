@@ -130,16 +130,16 @@
     -fx-translate-y: 20px;
 }
 .header-box {
-    -fx-background-color: #fff;
+    -fx-background-color: #1e4370;
     -fx-padding: 12 20;
     -fx-background-insets: 0;
 }
 .menu-bar {
-    -fx-background-color: #19335A;
+    -fx-background-color: #E74483;
 }
 
 .menu-bar .label {
-    -fx-text-fill: white;
+    -fx-text-fill: #1e4370;
     -fx-font-size: 14px;
     -fx-font-weight: bold;
 }

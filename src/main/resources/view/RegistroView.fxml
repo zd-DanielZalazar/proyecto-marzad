@@ -6,7 +6,8 @@
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.sga.marzad.controller.RegistroController"
             prefWidth="500" prefHeight="600"
-            styleClass="main-bg">
+            styleClass="main-bg"
+            stylesheets="@../css/estilos.css">
 
     <top>
         <Label text="Registro de Usuario"
@@ -25,46 +26,56 @@
             </padding>
 
             <!-- Selección de tipo de usuario -->
-            <VBox fx:id="vboxTipoUsuario" spacing="15" alignment="CENTER">
-                <Label text="Seleccione tipo de usuario" styleClass="label-title"/>
-                <HBox spacing="20">
-                    <Button text="Alumno" onAction="#mostrarFormularioAlumno" styleClass="btn-primary"/>
-                    <Button text="Docente" onAction="#mostrarFormularioDocente" styleClass="btn-primary"/>
-                </HBox>
-            </VBox>
+           <VBox fx:id="vboxTipoUsuario" spacing="15" alignment="CENTER">
+               <Label text="Seleccione tipo de usuario" styleClass="label-title"/>
+               <HBox spacing="20" alignment="CENTER">
+                   <Region HBox.hgrow="ALWAYS"/>
+                   <Button text="Alumno" onAction="#mostrarFormularioAlumno" styleClass="btn-primary"/>
+                   <Button text="Docente" onAction="#mostrarFormularioDocente" styleClass="btn-primary"/>
+                   <Region HBox.hgrow="ALWAYS"/>
+               </HBox>
+           </VBox>
 
             <!-- Formulario Alumno -->
-            <VBox fx:id="vboxAlumno" spacing="10" visible="false" styleClass="panel">
+            <VBox fx:id="vboxAlumno" spacing="10" visible="false" styleClass="panel" alignment="CENTER" fillWidth="true">
                 <Label text="Registro de Alumno" styleClass="label-title"/>
 
                 <TextField fx:id="txtNombreAlumno" promptText="Nombre" styleClass="text-field"/>
                 <TextField fx:id="txtApellidoAlumno" promptText="Apellido" styleClass="text-field"/>
                 <TextField fx:id="txtDniAlumno" promptText="DNI" styleClass="text-field"/>
                 <TextField fx:id="txtCorreoAlumno" promptText="Correo" styleClass="text-field"/>
+                <HBox spacing="10" alignment="CENTER">
                 <DatePicker fx:id="dpFechaNacAlumno"/>
                 <ComboBox fx:id="comboGeneroAlumno" promptText="Seleccione género"/>
-
-                <HBox spacing="10" alignment="CENTER_RIGHT">
+</HBox>
+                <HBox spacing="10" alignment="CENTER">
                     <Button text="Cancelar" onAction="#volver"/>
                     <Button text="Registrarse" onAction="#registrarAlumno" styleClass="btn-primary"/>
                 </HBox>
             </VBox>
 
             <!-- Formulario Docente -->
-            <VBox fx:id="vboxDocente" spacing="10" visible="false" styleClass="panel">
+            <VBox fx:id="vboxDocente" spacing="10" visible="false" styleClass="panel" alignment="CENTER" fillWidth="true">
                 <Label text="Registro de Docente" styleClass="label-title"/>
 
                 <TextField fx:id="txtNombreDocente" promptText="Nombre" styleClass="text-field"/>
                 <TextField fx:id="txtApellidoDocente" promptText="Apellido" styleClass="text-field"/>
                 <TextField fx:id="txtDniDocente" promptText="DNI" styleClass="text-field"/>
                 <TextField fx:id="txtCorreoDocente" promptText="Correo" styleClass="text-field"/>
-                <ComboBox fx:id="comboGeneroDocente" promptText="Seleccione género"/>
+                <HBox spacing="10" alignment="CENTER">
+                    <ComboBox fx:id="comboGeneroDocente" promptText="Seleccione género"/>
+                    <DatePicker fx:id="dpFechaNacDocente" promptText="Fecha de nacimiento"/>
+                </HBox>
 
-                <HBox spacing="10" alignment="CENTER_RIGHT">
+                <HBox spacing="10" alignment="CENTER">
+                    <Region HBox.hgrow="ALWAYS"/>
                     <Button text="Cancelar" onAction="#volver"/>
                     <Button text="Registrarse" onAction="#registrarDocente" styleClass="btn-primary"/>
+                    <Region HBox.hgrow="ALWAYS"/>
                 </HBox>
+
             </VBox>
+
         </StackPane>
     </center>
 </BorderPane>

@@ -3,6 +3,8 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.TextFlow?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -31,7 +33,7 @@
 
                 <!-- Título centrado -->
                 <Label fx:id="lblSistema" text="SGA - Sistema de Gestión Académica"
-                       style="-fx-font-size: 20px; -fx-text-fill: white; -fx-font-weight: bold;"
+                       style="-fx-font-size: 20px; -fx-text-fill: #1e4370; -fx-font-weight: bold;"
                        alignment="CENTER"/>
 
                 <!-- Espaciador derecho -->
@@ -62,10 +64,26 @@
                    style="-fx-font-size: 26px; -fx-text-fill: white; -fx-font-weight: bold;"/>
 
             <!-- Descripción -->
-            <Label text="Este sistema permite gestionar alumnos, docentes, materias, inscripciones, calificaciones y más."
-                   wrapText="true"
-                   maxWidth="800"
-                   style="-fx-font-size: 16px; -fx-text-fill: #FFC845;"/>
+           <TextFlow maxWidth="800">
+               <Text style="-fx-font-size: 16px; -fx-fill: #FFC845;">
+
+
+                   Esta es una plataforma digital vanguardista para optimizar la experiencia educativa. Este sistema integral de gestión centraliza, automatiza y simplifica procesos académicos y administrativos, beneficiando a estudiantes, docentes y personal.
+
+                   Su interfaz intuitiva permite a los estudiantes gestionar su historial, inscribirse a cursos y exámenes, consultar horarios, acceder a material, comunicarse con profesores y realizar trámites de forma rápida. También ofrece seguimiento de progreso.
+
+                   Para los docentes, es una herramienta invaluable para la gestión de cursos: publicar contenidos, administrar calificaciones, comunicarse con alumnos y planificar actividades. Simplifica tareas, permitiéndoles enfocarse en la enseñanza e investigación, y fomenta la colaboración.
+
+                   El personal administrativo se beneficia de la automatización de inscripciones, emisión de certificados, gestión de legajos y generación de informes, agilizando operaciones, minimizando errores y optimizando recursos. Sinergia Académica garantiza la seguridad y confidencialidad de la información.
+               </Text>
+               <Text text="&#10;&#10;&#10;" />
+
+               <Text style="-fx-font-size: 16px; -fx-fill: #FFC845; -fx-font-weight: bold;">
+
+                   Importante: Sinergia Académica incluye módulos de análisis de datos sobre rendimiento académico y eficiencia de procesos. Esta información es crucial para la toma de decisiones estratégicas, permitiendo a la universidad adaptarse proactivamente y mantener la excelencia. Su implementación reafirma el compromiso de la UNMDP con la innovación y la calidad educativa.
+               </Text>
+           </TextFlow>
+
 
             <!-- Noticias (simuladas tipo post-it) -->
             <HBox spacing="16" alignment="CENTER">

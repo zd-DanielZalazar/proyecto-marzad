@@ -27,6 +27,7 @@ public class RegistroController implements Initializable {
     // Docente
     @FXML private TextField txtNombreDocente, txtApellidoDocente, txtDniDocente, txtCorreoDocente;
     @FXML private ComboBox<String> comboGeneroDocente;
+    @FXML private DatePicker dpFechaNacDocente; // NUEVO
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -98,6 +99,7 @@ public class RegistroController implements Initializable {
         String dni = txtDniDocente.getText().trim();
         String correo = txtCorreoDocente.getText().trim();
         String genero = comboGeneroDocente.getValue();
+        LocalDate fechaNac = dpFechaNacDocente.getValue();
 
         if (!validarCampos(nombre, apellido, dni, correo, genero)) return;
 
@@ -109,8 +111,8 @@ public class RegistroController implements Initializable {
                 String legajo = generarLegajo(conn);
 
                 PreparedStatement ps = conn.prepareStatement("""
-                    INSERT INTO docentes (usuario_id, nombre, apellido, legajo, correo, genero)
-                    VALUES (?, ?, ?, ?, ?, ?)
+                    INSERT INTO docentes (usuario_id, nombre, apellido, legajo, correo, genero, dni, fecha_nacimiento)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """);
                 ps.setInt(1, usuarioId);
                 ps.setString(2, nombre);
@@ -118,6 +120,8 @@ public class RegistroController implements Initializable {
                 ps.setString(4, legajo);
                 ps.setString(5, correo);
                 ps.setString(6, genero);
+                ps.setString(7, dni);
+                ps.setDate(8, fechaNac != null ? Date.valueOf(fechaNac) : null);
                 ps.executeUpdate();
 
                 mostrarAlerta("Registro exitoso", Alert.AlertType.INFORMATION);

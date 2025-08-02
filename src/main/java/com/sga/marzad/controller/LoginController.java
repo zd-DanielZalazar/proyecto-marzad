@@ -28,13 +28,31 @@ public class LoginController {
         Usuario u = vm.autenticar(user, pass);
 
         if (u != null) {
-            // Navega al dashboard principal
-            Main.goToMainView(u.getUsername(), u.getRol());
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainView.fxml"));
+                Parent root = loader.load();
+
+                MainController mainController = loader.getController();
+                mainController.cargarDatosUsuario(u.getUsername(), u.getRol());
+
+                Stage stage = new Stage();
+                stage.setScene(new Scene(root));
+                stage.setTitle("Sistema de Gestión Académica");
+                stage.show();
+
+                // Cerrar ventana login actual
+                Stage currentStage = (Stage) txtUser.getScene().getWindow();
+                currentStage.close();
+
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                new Alert(Alert.AlertType.ERROR, "Error al abrir la vista principal.").showAndWait();
+            }
         } else {
-            new Alert(Alert.AlertType.ERROR,
-                    "Credenciales inválidas").showAndWait();
+            new Alert(Alert.AlertType.ERROR, "Credenciales inválidas").showAndWait();
         }
     }
+
     @FXML
     private void onRegister() {
         // Abrir modal de registro

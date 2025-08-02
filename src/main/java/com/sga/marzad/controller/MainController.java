@@ -13,7 +13,6 @@ import javafx.util.Duration;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -43,7 +42,6 @@ public class MainController implements Initializable {
     @FXML
     private ImageView logoImage;
 
-    // Estos son opcionales si los usás en el footer
     @FXML
     private Label lblVersion;
 
@@ -52,16 +50,25 @@ public class MainController implements Initializable {
 
     @FXML
     private Label lblBdStatus;
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        iniciarReloj();
-        cargarDatosUsuario("Juan", "DOCENTE"); // o parámetro real
-        cargarMenu(); // ← Esto estaba faltando
-    }
 
     private final Locale locale = new Locale("es", "AR");
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE d 'de' MMMM 'de' yyyy - HH:mm", locale);
 
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        iniciarReloj();
+        cargarMenu();
+        // No cargamos usuario aquí porque se pasará desde LoginController
+    }
+
+    /**
+     * Método público para setear el nombre y rol del usuario logueado
+     * @param nombre Nombre de usuario
+     * @param rol Rol del usuario
+     */
+    public void cargarDatosUsuario(String nombre, String rol) {
+        lblUsuario.setText(nombre + " (" + rol + ")");
+    }
 
     private void iniciarReloj() {
         Timeline timeline = new Timeline(
@@ -81,11 +88,7 @@ public class MainController implements Initializable {
         return texto.substring(0, 1).toUpperCase() + texto.substring(1);
     }
 
-    private void cargarDatosUsuario(String nombre, String rol) {
-        lblUsuario.setText(nombre + " (" + rol + ")");
-    }
     private void cargarMenu() {
-        // Íconos se pueden agregar con Ikonli más adelante
         Menu inscripciones = new Menu("Inscripciones");
         MenuItem materias = new MenuItem("Inscripción a Materias");
         MenuItem examenes = new MenuItem("Inscripción a Exámenes Finales");
@@ -117,6 +120,7 @@ public class MainController implements Initializable {
 
         menuBar.getMenus().addAll(inscripciones, tramites, cuenta);
     }
+
     private void mostrarAlertaInfo(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setHeaderText(null);
@@ -142,6 +146,4 @@ public class MainController implements Initializable {
             mostrarAlertaInfo("No se pudo abrir la vista.");
         }
     }
-
-
 }
