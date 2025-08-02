@@ -98,8 +98,19 @@ CREATE TABLE calificaciones (
                                 FOREIGN KEY (docente_id)     REFERENCES docentes(id)
 ) ENGINE=InnoDB;
 
--- 9) Usuario de prueba: "zeuci" / "1234" (bcrypt)
+-- 9) Usuario de prueba: "admin" / "1234" (bcrypt)
+INSERT INTO usuarios(username, hash_password, rol)
+VALUES (
+           'admin',
+           '1234',
+           'ADMIN'
+       );
+ALTER TABLE docentes
+    ADD COLUMN dni VARCHAR(15) NOT NULL,
+ADD COLUMN genero VARCHAR(10),
+ADD COLUMN fecha_nacimiento DATE;
 
-         --  'zeuci',
-         --  '$2a$10$e0MYzXyjpJS7Pd0RVvHwHeFXV3YF6jBArVjUYBsPKgjl/XWO/6/IW',
-         --  'ADMIN'
+SELECT * FROM docentes;
+
+describe docentes;
+DELETE FROM usuarios WHERE username = 'zeuci';

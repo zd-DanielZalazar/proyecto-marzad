@@ -33,8 +33,7 @@
 
                 <!-- Título centrado -->
                 <Label fx:id="lblSistema" text="SGA - Sistema de Gestión Académica"
-                       style="-fx-font-size: 20px; -fx-text-fill: #1e4370; -fx-font-weight: bold;"
-                       alignment="CENTER"/>
+                       styleClass="label-title" alignment="CENTER"/>
 
                 <!-- Espaciador derecho -->
                 <Region HBox.hgrow="ALWAYS"/>
