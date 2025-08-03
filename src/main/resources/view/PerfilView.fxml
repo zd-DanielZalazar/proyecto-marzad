@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.sga.marzad.controller.PerfilController"
+            prefWidth="500" prefHeight="600"
+            styleClass="main-bg">
+    <top>
+        <Label text="Mis Datos Personales"
+               style="-fx-font-size: 22px; -fx-text-fill: white; -fx-padding: 20;"
+               BorderPane.alignment="CENTER"/>
+    </top>
+    <center>
+        <StackPane fx:id="stackPanePerfil">
+        <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+            <VBox fx:id="vboxPerfil" spacing="15" alignment="CENTER">
+
+                <GridPane hgap="10" vgap="12">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="130"/>
+                        <ColumnConstraints minWidth="260"/>
+                    </columnConstraints>
+
+                    <!-- NOMBRE -->
+                    <Label text="Nombre:" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="label-field"/>
+                    <TextField fx:id="txtNombre" GridPane.rowIndex="0" GridPane.columnIndex="1" editable="false"/>
+
+                    <!-- APELLIDO -->
+                    <Label text="Apellido:" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="label-field"/>
+                    <TextField fx:id="txtApellido" GridPane.rowIndex="1" GridPane.columnIndex="1" editable="false"/>
+
+                    <!-- CORREO -->
+                    <Label text="Correo:" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="label-field"/>
+                    <TextField fx:id="txtCorreo" GridPane.rowIndex="2" GridPane.columnIndex="1" editable="false"/>
+
+                    <!-- FECHA DE NACIMIENTO (solo alumnos) -->
+                    <Label fx:id="lblFechaNac" text="Fecha de nacimiento:" GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="label-field" visible="false"/>
+                    <DatePicker fx:id="datePickerFechaNac" GridPane.rowIndex="3" GridPane.columnIndex="1" editable="false" visible="false"/>
+
+                    <!-- GENERO -->
+                    <Label text="Género:" GridPane.rowIndex="4" GridPane.columnIndex="0" styleClass="label-field"/>
+                    <ComboBox fx:id="comboGenero" GridPane.rowIndex="4" GridPane.columnIndex="1" prefWidth="160" disable="true"/>
+
+                    <!-- DNI (solo alumnos, NO editable) -->
+                    <Label fx:id="lblDni" text="DNI:" GridPane.rowIndex="5" GridPane.columnIndex="0" styleClass="label-field" visible="false"/>
+                    <TextField fx:id="txtDni" GridPane.rowIndex="5" GridPane.columnIndex="1" editable="false" visible="false"/>
+
+                    <!-- LEGAJO (solo docentes, NO editable) -->
+                    <Label fx:id="lblLegajo" text="Legajo:" GridPane.rowIndex="6" GridPane.columnIndex="0" styleClass="label-field" visible="false"/>
+                    <TextField fx:id="txtLegajo" GridPane.rowIndex="6" GridPane.columnIndex="1" editable="false" visible="false"/>
+                </GridPane>
+
+                <!-- Botones principales -->
+                <HBox spacing="18" alignment="CENTER">
+                    <Button fx:id="btnEditar" text="Editar" onAction="#onEditar" styleClass="btn-primary" minWidth="120"/>
+                    <Button fx:id="btnGuardar" text="Guardar" onAction="#onGuardar" visible="false" styleClass="btn-confirm" minWidth="120"/>
+                    <Button fx:id="btnLimpiar" text="Limpiar" onAction="#onLimpiar" visible="false" styleClass="btn-warning" minWidth="120"/>
+                    <Button fx:id="btnCancelar" text="Cancelar" onAction="#onCancelar" visible="false" styleClass="btn-danger" minWidth="140"/>
+
+                </HBox>
+
+                <!-- Cambio de contraseña -->
+                <Button fx:id="btnCambiarPass" text="Cambiar contraseña" onAction="#onCambiarPassword" styleClass="btn-secondary" maxWidth="240"/>
+            </VBox>
+        </StackPane>
+    </center>
+</BorderPane>

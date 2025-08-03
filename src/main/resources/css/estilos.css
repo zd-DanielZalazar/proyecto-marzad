@@ -188,6 +188,11 @@
 .table-row-cell:even {
     -fx-background-color: #fff;
 }
+.label-field {
+    -fx-text-fill: #f1f1f1;  /* blanco o gris claro */
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
 
 /* --------- Iconos --------- */
 /* Para Ikonli solo hace falta agregar la clase de botón y usar el graphicNode */

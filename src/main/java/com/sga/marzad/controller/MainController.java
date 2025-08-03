@@ -153,8 +153,16 @@ public class MainController implements Initializable {
         MenuItem perfil = new MenuItem("Mis Datos Personales");
         MenuItem cerrar = new MenuItem("Cerrar Sesión");
 
-        perfil.setOnAction(e -> mostrarAlertaInfo("Perfil en construcción."));
-        cerrar.setOnAction(e -> Main.goToLogin());
+        perfil.setOnAction(e -> abrirVentanaPerfil());
+
+
+        cerrar.setOnAction(e -> {
+            // Cerrá la ventana principal actual
+            Stage mainStage = (Stage) menuBar.getScene().getWindow();
+            mainStage.close();
+            // Volvé al login
+            Main.goToLogin();
+        });
 
         cuenta.getItems().addAll(perfil, cerrar);
 
@@ -187,6 +195,7 @@ public class MainController implements Initializable {
         }
     }
 
+
     private void mostrarAlerta(String titulo, String mensaje, Alert.AlertType tipo) {
         Alert alert = new Alert(tipo);
         alert.setTitle(titulo);
@@ -194,4 +203,24 @@ public class MainController implements Initializable {
         alert.setContentText(mensaje);
         alert.showAndWait();
     }
+    private void abrirVentanaPerfil() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/PerfilView.fxml"));
+            Parent root = loader.load();
+            PerfilController perfilController = loader.getController();
+            perfilController.setUsuarioActual(this.usuarioActual); // ← PASÁ EL USUARIO ACTUAL
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(Main.class.getResource("/css/estilos.css").toExternalForm());
+            Stage stage = new Stage();
+            stage.setTitle("Mis Datos Personales");
+            stage.setScene(scene);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setResizable(false);
+            stage.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarAlertaInfo("No se pudo abrir la vista de perfil.");
+        }
+    }
+
 }

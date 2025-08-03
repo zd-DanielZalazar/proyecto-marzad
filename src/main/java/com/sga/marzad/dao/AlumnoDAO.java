@@ -114,4 +114,85 @@ public class AlumnoDAO {
         }
         return false;
     }
+    // Recupera un alumno por usuario_id (estático)
+    public static Alumno buscarPorUsuarioId(int usuarioId) {
+        Alumno alumno = null;
+        String sql = "SELECT * FROM alumnos WHERE usuario_id = ?";
+        try (Connection c = ConexionBD.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, usuarioId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                alumno = new Alumno(
+                        rs.getInt("id"),
+                        rs.getInt("usuario_id"),
+                        rs.getString("nombre"),
+                        rs.getString("apellido"),
+                        rs.getString("dni"),
+                        rs.getString("correo"),
+                        rs.getDate("fecha_nac") != null ? rs.getDate("fecha_nac").toLocalDate() : null,
+                        rs.getString("genero"),
+                        rs.getBoolean("habilitado")
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return alumno;
+    }
+
+    // Actualiza sólo los campos permitidos del perfil (estático)
+    public static boolean actualizar(int id, String nombre, String apellido, String correo, String genero, LocalDate fechaNac) {
+        String sql = "UPDATE alumnos SET nombre=?, apellido=?, correo=?, genero=?, fecha_nac=? WHERE id=?";
+        try (Connection c = ConexionBD.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+
+            ps.setString(1, nombre);
+            ps.setString(2, apellido);
+            ps.setString(3, correo);
+            ps.setString(4, genero);
+            ps.setDate(5, fechaNac != null ? Date.valueOf(fechaNac) : null);
+            ps.setInt(6, id);
+
+            return ps.executeUpdate() == 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    // Obtiene la contraseña actual del usuario (en texto plano, o hash si usás hash)
+    public static String obtenerPasswordActual(int usuarioId) {
+        String sql = "SELECT hash_password FROM usuarios WHERE id = ?";
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, usuarioId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString("hash_password");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // Actualiza la contraseña del usuario
+    public static boolean actualizarPassword(int usuarioId, String nuevaPassword) {
+        String sql = "UPDATE usuarios SET hash_password = ? WHERE id = ?";
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, nuevaPassword);
+            stmt.setInt(2, usuarioId);
+
+            int rows = stmt.executeUpdate();
+            return rows > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }
