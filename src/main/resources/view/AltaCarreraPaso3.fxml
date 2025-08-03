@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="20" alignment="CENTER" styleClass="wizard-bg" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.sga.marzad.controller.AltaCarreraPaso3Controller">
+
+    <Label text="Definir Correlatividades entre Materias" styleClass="wizard-title"/>
+    <Label fx:id="lblInstrucciones" text="Seleccione una materia, luego arrastre materias previas como correlativas." style="-fx-font-size: 14px;"/>
+
+    <HBox spacing="40" alignment="CENTER">
+        <!-- Lista de materias a la izquierda -->
+        <VBox>
+            <Label text="Materias cargadas:"/>
+            <ListView fx:id="listMaterias"/>
+        </VBox>
+
+        <!-- Materias correlativas posibles -->
+        <VBox>
+            <Label text="Posibles correlativas:"/>
+            <ListView fx:id="listCorrelativasPosibles"/>
+            <Label text="Correlativas asignadas:" style="-fx-padding: 10 0 0 0;"/>
+            <ListView fx:id="listCorrelativasAsignadas"/>
+            <HBox spacing="10" alignment="CENTER">
+                <Button text="Agregar &gt;&gt;" onAction="#onAgregarCorrelativa"/>
+                <Button text="&lt;&lt; Quitar" onAction="#onQuitarCorrelativa"/>
+            </HBox>
+        </VBox>
+    </HBox>
+
+    <HBox spacing="20" alignment="CENTER">
+        <Button text="Anterior" onAction="#onAnterior"/>
+        <Button text="Siguiente" onAction="#onSiguiente"/>
+    </HBox>
+</VBox>

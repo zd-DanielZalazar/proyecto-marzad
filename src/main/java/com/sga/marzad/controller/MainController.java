@@ -50,7 +50,7 @@ public class MainController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         iniciarReloj();
-        cargarMenu();
+        // cargarMenu();  // <-- SE QUITA, AHORA SOLO SE LLAMA DESDE setUsuarioActual()
         // Usuario se setea desde LoginController después del login
     }
 
@@ -58,7 +58,8 @@ public class MainController implements Initializable {
     public void setUsuarioActual(Usuario usuario) {
         this.usuarioActual = usuario;
         lblUsuario.setText(usuario.getUsername() + " (" + usuario.getRol() + ")");
-
+        menuBar.getMenus().clear(); // LIMPIAR antes de agregar
+        cargarMenu(); // Ahora sí: MENÚ SE CARGA LUEGO DE SETEAR USUARIO
     }
 
     // ------------- Botón certificado -------------
@@ -128,14 +129,29 @@ public class MainController implements Initializable {
     }
 
     private void cargarMenu() {
+        menuBar.getMenus().clear(); // LIMPIAR ANTES DE AGREGAR
+
+        // --------- MENÚ DE ALTA DE CARRERAS SOLO PARA ADMIN ---------
+        if (usuarioActual != null && "ADMIN".equalsIgnoreCase(usuarioActual.getRol())) {
+            MenuItem altaCarreraMateriaItem = new MenuItem("Alta de carreras y materias");
+            altaCarreraMateriaItem.setOnAction(e -> abrirVentanaModal("/view/AltaCarreraWizard.fxml", "Alta de carreras y materias"));
+            Menu adminMenu = new Menu("Carreras"); //
+            adminMenu.getItems().add(altaCarreraMateriaItem);
+            // Usar solo el MenuItem suelto visualmente:
+            altaCarreraMateriaItem.setStyle("-fx-font-weight: bold;");
+
+            // Insertar el Menu antes de Inscripciones
+            menuBar.getMenus().add(0, adminMenu);
+        }
+
+
+        // --------- RESTO DEL MENÚ ---------
         Menu inscripciones = new Menu("Inscripciones");
         MenuItem materias = new MenuItem("Inscripción a Materias");
         MenuItem examenes = new MenuItem("Inscripción a Exámenes Finales");
 
         materias.setOnAction(e -> abrirVentanaModal("/view/InscripcionMateriaView.fxml", "Inscripción a Materias"));
-
         examenes.setOnAction(e -> mostrarAlertaInfo("Esta vista aún no está disponible."));
-
         inscripciones.getItems().addAll(materias, examenes);
 
         Menu tramites = new Menu("Trámites");
@@ -144,29 +160,22 @@ public class MainController implements Initializable {
         MenuItem estadoClases = new MenuItem("Estado de Clases");
 
         certificados.setOnAction(e -> onCertificadoAlumnoRegularClick());
-
         estadoAcademico.setOnAction(e -> mostrarAlertaInfo("Estado académico en desarrollo."));
         estadoClases.setOnAction(e -> mostrarAlertaInfo("Vista para docentes."));
-
         tramites.getItems().addAll(certificados, estadoAcademico, estadoClases);
 
         Menu cuenta = new Menu("Cuenta");
         MenuItem perfil = new MenuItem("Mis Datos Personales");
         MenuItem cerrar = new MenuItem("Cerrar Sesión");
-
         perfil.setOnAction(e -> abrirVentanaPerfil());
-
-
         cerrar.setOnAction(e -> {
-            // Cerrá la ventana principal actual
             Stage mainStage = (Stage) menuBar.getScene().getWindow();
             mainStage.close();
-            // Volvé al login
             Main.goToLogin();
         });
-
         cuenta.getItems().addAll(perfil, cerrar);
 
+        // ORDEN DEL MENÚ: (admin si es admin), inscripciones, trámites, cuenta
         menuBar.getMenus().addAll(inscripciones, tramites, cuenta);
     }
 
@@ -196,7 +205,6 @@ public class MainController implements Initializable {
         }
     }
 
-
     private void mostrarAlerta(String titulo, String mensaje, Alert.AlertType tipo) {
         Alert alert = new Alert(tipo);
         alert.setTitle(titulo);
@@ -204,6 +212,7 @@ public class MainController implements Initializable {
         alert.setContentText(mensaje);
         alert.showAndWait();
     }
+
     private void abrirVentanaPerfil() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/PerfilView.fxml"));
@@ -223,5 +232,4 @@ public class MainController implements Initializable {
             mostrarAlertaInfo("No se pudo abrir la vista de perfil.");
         }
     }
-
 }

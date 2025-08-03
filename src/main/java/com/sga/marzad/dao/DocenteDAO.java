@@ -2,7 +2,8 @@ package com.sga.marzad.dao;
 
 import com.sga.marzad.model.Docente;
 import com.sga.marzad.utils.ConexionBD;
-
+import java.util.List;
+import java.util.ArrayList;
 import java.sql.*;
 
 public class DocenteDAO {
@@ -156,4 +157,27 @@ public class DocenteDAO {
         return null;
     }
 
+    public static List<Docente> obtenerTodos() {
+        List<Docente> docentes = new ArrayList<>();
+        try (Connection conn = ConexionBD.getConnection()) {
+            String sql = "SELECT * FROM docentes WHERE habilitado = 1";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                docentes.add(new Docente(
+                        rs.getInt("id"),
+                        rs.getInt("usuario_id"),
+                        rs.getString("nombre"),
+                        rs.getString("apellido"),
+                        rs.getString("legajo"),
+                        rs.getString("correo"),
+                        rs.getString("genero"),
+                        rs.getBoolean("habilitado")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return docentes;
+    }
 }

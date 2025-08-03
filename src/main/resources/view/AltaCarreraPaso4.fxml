@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="20" alignment="CENTER" styleClass="wizard-bg" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.sga.marzad.controller.AltaCarreraPaso4Controller">
+
+    <Label text="Resumen y Confirmación" styleClass="wizard-title"/>
+    <Label fx:id="lblCarrera"/>
+
+    <Label text="Materias y Horarios:" style="-fx-font-size: 14px;"/>
+    <TableView fx:id="tablaMaterias" prefWidth="750" prefHeight="200">
+        <columns>
+            <TableColumn text="Materia" fx:id="colNombre"/>
+            <TableColumn text="Año" fx:id="colAnio"/>
+            <TableColumn text="Docente" fx:id="colDocente"/>
+            <TableColumn text="Día" fx:id="colDia"/>
+            <TableColumn text="Hora" fx:id="colHora"/>
+            <TableColumn text="Correlatividades" fx:id="colCorrelativas"/>
+        </columns>
+    </TableView>
+
+    <HBox spacing="20" alignment="CENTER">
+        <Button text="Anterior" onAction="#onAnterior"/>
+        <Button text="Confirmar y Guardar" onAction="#onGuardar"/>
+        <Button text="Cancelar" onAction="#onCancelar"/>
+    </HBox>
+</VBox>

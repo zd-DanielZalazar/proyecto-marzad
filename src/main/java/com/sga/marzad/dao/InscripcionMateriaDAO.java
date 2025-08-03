@@ -5,8 +5,8 @@ import com.sga.marzad.model.MateriaDisponible;
 import com.sga.marzad.utils.ConexionBD;
 
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class InscripcionMateriaDAO {
@@ -77,21 +77,26 @@ public class InscripcionMateriaDAO {
         return lista;
     }
 
-    // Materias disponibles para inscribirse (básico: no inscripto y de la carrera)
+    // Materias disponibles para inscribirse (incluye correlativas y estado)
     public List<MateriaDisponible> materiasDisponibles(int alumnoId, int carreraId) {
         List<MateriaDisponible> lista = new ArrayList<>();
         String sql = """
-            SELECT m.id, m.nombre, m.anio, m.cuatrimestre, m.plan_id, c.nombre AS carrera_nombre
-              FROM materias m
-              JOIN planes_estudio p ON m.plan_id = p.id
-              JOIN carreras c ON p.carrera_id = c.id
-              JOIN inscripciones_carrera ic ON ic.carrera_id = c.id AND ic.alumno_id = ?
-             WHERE c.id = ?
-               AND ic.estado = 'APROBADA'
-               AND m.id NOT IN (
-                   SELECT materia_id FROM inscripciones WHERE alumno_id = ? AND estado = 'ACTIVA'
-               )
-            """;
+            SELECT
+                m.id, m.nombre, m.anio, m.cuatrimestre,
+                GROUP_CONCAT(cor.nombre SEPARATOR ',') AS correlativas
+            FROM materias m
+            LEFT JOIN correlatividades co ON co.materia_id = m.id
+            LEFT JOIN materias cor ON co.correlativa_id = cor.id
+            JOIN planes_estudio p ON m.plan_id = p.id
+            JOIN carreras c ON p.carrera_id = c.id
+            JOIN inscripciones_carrera ic ON ic.carrera_id = c.id AND ic.alumno_id = ?
+            WHERE c.id = ?
+              AND ic.estado = 'APROBADA'
+              AND m.id NOT IN (
+                  SELECT materia_id FROM inscripciones WHERE alumno_id = ? AND estado = 'ACTIVA'
+              )
+            GROUP BY m.id, m.nombre, m.anio, m.cuatrimestre
+        """;
         try (Connection c = ConexionBD.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, alumnoId);
@@ -99,13 +104,22 @@ public class InscripcionMateriaDAO {
             ps.setInt(3, alumnoId);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
+                // Parsear correlativas
+                List<String> correlativas = new ArrayList<>();
+                String correlativasStr = rs.getString("correlativas");
+                if (correlativasStr != null && !correlativasStr.isEmpty()) {
+                    correlativas = Arrays.asList(correlativasStr.split(","));
+                }
+                // TODO: Acá podés calcular el estado real según la lógica de tu negocio
+                String estado = "DISPONIBLE";
+
                 MateriaDisponible mat = new MateriaDisponible(
                         rs.getInt("id"),
                         rs.getString("nombre"),
                         rs.getInt("anio"),
                         rs.getInt("cuatrimestre"),
-                        rs.getInt("plan_id"),
-                        rs.getString("carrera_nombre")
+                        correlativas,
+                        estado
                 );
                 lista.add(mat);
             }

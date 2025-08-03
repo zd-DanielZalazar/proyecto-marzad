@@ -18,6 +18,23 @@
     </top>
 
     <center>
-        <TabPane fx:id="tabPaneAnios" tabClosingPolicy="UNAVAILABLE"/>
+        <VBox spacing="20" alignment="CENTER">
+            <TabPane fx:id="tabPaneAnios" tabClosingPolicy="UNAVAILABLE"/>
+            <Label text="Materias Inscritas:" styleClass="subtitle"/>
+            <TableView fx:id="tablaInscripciones" prefWidth="800" prefHeight="200">
+                <columns>
+                    <TableColumn text="ID"/>
+                    <TableColumn text="Materia ID"/>
+                    <TableColumn text="Fecha Inscripción"/>
+                    <TableColumn text="Estado"/>
+                </columns>
+            </TableView>
+            <HBox spacing="10" alignment="CENTER">
+                <ComboBox fx:id="comboMaterias" promptText="Seleccionar materia"/>
+                <Button fx:id="btnInscribir" text="Inscribir" onAction="#inscribirMateria"/>
+                <Label fx:id="lblEstado"/>
+            </HBox>
+        </VBox>
     </center>
+
 </BorderPane>

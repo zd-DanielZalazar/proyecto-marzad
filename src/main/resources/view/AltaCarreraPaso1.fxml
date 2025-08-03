@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="20" alignment="CENTER" styleClass="wizard-bg" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.sga.marzad.controller.AltaCarreraPaso1Controller">
+
+    <Label text="Alta de Nueva Carrera" styleClass="wizard-title"/>
+    <GridPane hgap="10" vgap="15" alignment="CENTER">
+        <Label text="Nombre de la carrera:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtNombre" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+        <Label text="Descripción:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextArea fx:id="txtDescripcion" prefRowCount="2" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+        <Label text="Duración (años):" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <Spinner fx:id="spnDuracion" min="1" max="10" initialValue="1" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+    </GridPane>
+    <HBox spacing="20" alignment="CENTER">
+        <Button text="Cancelar" onAction="#onCancelar"/>
+        <Button text="Siguiente" onAction="#onSiguiente"/>
+    </HBox>
+</VBox>
