@@ -13,11 +13,9 @@ public class Alumno {
     private String genero;
     private boolean habilitado;
 
-    public Alumno() { }
-
-    public Alumno(int id, int usuarioId, String nombre, String apellido,
-                  String dni, String correo, LocalDate fechaNac,
-                  String genero, boolean habilitado) {
+    // Constructor completo
+    public Alumno(int id, int usuarioId, String nombre, String apellido, String dni,
+                  String correo, LocalDate fechaNac, String genero, boolean habilitado) {
         this.id = id;
         this.usuarioId = usuarioId;
         this.nombre = nombre;
@@ -29,31 +27,28 @@ public class Alumno {
         this.habilitado = habilitado;
     }
 
-    // Getters y setters
+    // Constructor simple (si lo querés)
+    public Alumno(int id, int usuarioId, String nombre, String apellido, String dni) {
+        this(id, usuarioId, nombre, apellido, dni, null, null, null, true);
+    }
+
+    // Getters y setters...
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
-
     public int getUsuarioId() { return usuarioId; }
     public void setUsuarioId(int usuarioId) { this.usuarioId = usuarioId; }
-
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
-
     public String getApellido() { return apellido; }
     public void setApellido(String apellido) { this.apellido = apellido; }
-
     public String getDni() { return dni; }
     public void setDni(String dni) { this.dni = dni; }
-
     public String getCorreo() { return correo; }
     public void setCorreo(String correo) { this.correo = correo; }
-
     public LocalDate getFechaNac() { return fechaNac; }
     public void setFechaNac(LocalDate fechaNac) { this.fechaNac = fechaNac; }
-
     public String getGenero() { return genero; }
     public void setGenero(String genero) { this.genero = genero; }
-
     public boolean isHabilitado() { return habilitado; }
     public void setHabilitado(boolean habilitado) { this.habilitado = habilitado; }
 }

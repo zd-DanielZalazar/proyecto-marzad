@@ -1,18 +1,19 @@
 package com.sga.marzad.controller;
 
 import com.sga.marzad.Main;
+import com.sga.marzad.model.Alumno;
+import com.sga.marzad.model.Usuario;
+import com.sga.marzad.service.CertificadoRegularService;
+import com.sga.marzad.utils.ConexionBD;
+
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuBar;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.Alert;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -20,6 +21,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.net.URL;
+import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -27,48 +29,85 @@ import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
 
-    @FXML
-    private Label lblReloj;
+    // ------------- FXML variables -------------
+    @FXML private Label lblReloj;
+    @FXML private Label lblUsuario;
+    @FXML private Label lblSistema;
+    @FXML private MenuBar menuBar;
+    @FXML private ImageView logoImage;
+    @FXML private Label lblVersion;
+    @FXML private Label lblAutor;
+    @FXML private Label lblBdStatus;
 
-    @FXML
-    private Label lblUsuario;
+    // ------------- Sesión actual -------------
+    private Usuario usuarioActual;
 
-    @FXML
-    private Label lblSistema;
-
-    @FXML
-    private MenuBar menuBar;
-
-    @FXML
-    private ImageView logoImage;
-
-    @FXML
-    private Label lblVersion;
-
-    @FXML
-    private Label lblAutor;
-
-    @FXML
-    private Label lblBdStatus;
-
+    // ------------- Reloj -------------
     private final Locale locale = new Locale("es", "AR");
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE d 'de' MMMM 'de' yyyy - HH:mm", locale);
 
+    // ------------- Inicialización -------------
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         iniciarReloj();
         cargarMenu();
-        // No cargamos usuario aquí porque se pasará desde LoginController
+        // Usuario se setea desde LoginController después del login
     }
 
-    /**
-     * Método público para setear el nombre y rol del usuario logueado
-     * @param nombre Nombre de usuario
-     * @param rol Rol del usuario
-     */
-    public void cargarDatosUsuario(String nombre, String rol) {
-        lblUsuario.setText(nombre + " (" + rol + ")");
+    // Se llama desde LoginController tras login exitoso
+    public void setUsuarioActual(Usuario usuario) {
+        this.usuarioActual = usuario;
+        lblUsuario.setText(usuario.getUsername() + " (" + usuario.getRol() + ")");
+
     }
+
+    // ------------- Botón certificado -------------
+    @FXML
+    private void onCertificadoAlumnoRegularClick() {
+        try {
+            int usuarioId = usuarioActual.getId();
+            Alumno alumno = buscarAlumnoPorUsuarioId(usuarioId);
+
+            if (alumno == null) {
+                mostrarAlerta("Error", "No se encontraron datos del alumno.", Alert.AlertType.ERROR);
+                return;
+            }
+
+            String nombre = alumno.getNombre();
+            String apellido = alumno.getApellido();
+            String dni = alumno.getDni();
+
+            CertificadoRegularService.generarCertificado(nombre, apellido, dni);
+            mostrarAlerta("Certificado generado", "Se descargó el certificado en la carpeta Descargas.", Alert.AlertType.INFORMATION);
+        } catch (Exception e) {
+            mostrarAlerta("Error", "No se pudo generar el certificado: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+    // ------------- Buscar alumno en DB -------------
+    private Alumno buscarAlumnoPorUsuarioId(int usuarioId) {
+        Alumno alumno = null;
+        try (Connection conn = ConexionBD.getConnection()) {
+            String sql = "SELECT * FROM alumnos WHERE usuario_id = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, usuarioId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                alumno = new Alumno(
+                        rs.getInt("id"),
+                        rs.getInt("usuario_id"),
+                        rs.getString("nombre"),
+                        rs.getString("apellido"),
+                        rs.getString("dni")
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return alumno;
+    }
+
+    // ------------- Menú y utilidades varias -------------
 
     private void iniciarReloj() {
         Timeline timeline = new Timeline(
@@ -99,11 +138,12 @@ public class MainController implements Initializable {
         inscripciones.getItems().addAll(materias, examenes);
 
         Menu tramites = new Menu("Trámites");
-        MenuItem certificados = new MenuItem("Descarga de Certificados");
+        MenuItem certificados = new MenuItem("Descarga Certificado Alumno Regular");
         MenuItem estadoAcademico = new MenuItem("Estado Académico");
         MenuItem estadoClases = new MenuItem("Estado de Clases");
 
-        certificados.setOnAction(e -> mostrarAlertaInfo("Certificados aún no disponibles."));
+        certificados.setOnAction(e -> onCertificadoAlumnoRegularClick());
+
         estadoAcademico.setOnAction(e -> mostrarAlertaInfo("Estado académico en desarrollo."));
         estadoClases.setOnAction(e -> mostrarAlertaInfo("Vista para docentes."));
 
@@ -145,5 +185,13 @@ public class MainController implements Initializable {
             e.printStackTrace();
             mostrarAlertaInfo("No se pudo abrir la vista.");
         }
+    }
+
+    private void mostrarAlerta(String titulo, String mensaje, Alert.AlertType tipo) {
+        Alert alert = new Alert(tipo);
+        alert.setTitle(titulo);
+        alert.setHeaderText(null);
+        alert.setContentText(mensaje);
+        alert.showAndWait();
     }
 }

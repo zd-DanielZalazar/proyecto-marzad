@@ -33,7 +33,8 @@ public class LoginController {
                 Parent root = loader.load();
 
                 MainController mainController = loader.getController();
-                mainController.cargarDatosUsuario(u.getUsername(), u.getRol());
+                mainController.setUsuarioActual(u);
+
 
                 Stage stage = new Stage();
                 stage.setScene(new Scene(root));
