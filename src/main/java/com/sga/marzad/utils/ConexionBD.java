@@ -13,7 +13,7 @@ public class ConexionBD {
                     + "&characterEncoding=UTF-8"
                     + "&serverTimezone=America/Argentina/Buenos_Aires";
     private static final String USER = "root";
-    private static final String PASS = "admin";
+    private static final String PASS = "root";
     private static Connection conn;
 
     public static Connection getConnection() throws SQLException {
