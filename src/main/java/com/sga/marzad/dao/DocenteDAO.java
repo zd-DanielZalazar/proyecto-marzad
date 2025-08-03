@@ -84,6 +84,23 @@ public class DocenteDAO {
         }
     }
 
+    /** obtiene Id por usuario */
+    public int obtenerIdPorUsuarioId(int usuarioId) {
+        String sql = "SELECT id FROM docentes WHERE usuario_id = ?";
+        try (Connection c = ConexionBD.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, usuarioId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1; // No encontrado
+    }
+
+
     // Verifica que el correo sea único (excepto para este docente)
     public static boolean correoDisponible(int idActual, String correo) {
         String sql = "SELECT id FROM docentes WHERE correo = ? AND id <> ?";

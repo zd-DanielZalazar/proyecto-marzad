@@ -33,9 +33,28 @@ public class InscripcionMateriaController {
 
     @FXML
     public void initialize() {
+        // Configuración de columnas (esto es fundamental)
+        TableColumn<InscripcionMateria, Number> colId = new TableColumn<>("ID");
+        colId.setCellValueFactory(data -> new javafx.beans.property.SimpleIntegerProperty(data.getValue().getId()));
+
+        TableColumn<InscripcionMateria, Number> colMateria = new TableColumn<>("Materia ID");
+        colMateria.setCellValueFactory(data -> new javafx.beans.property.SimpleIntegerProperty(data.getValue().getMateriaId()));
+
+        TableColumn<InscripcionMateria, String> colFecha = new TableColumn<>("Fecha Inscripción");
+        colFecha.setCellValueFactory(data -> {
+            var fecha = data.getValue().getFechaInsc();
+            return new javafx.beans.property.SimpleStringProperty(fecha != null ? fecha.toString() : "");
+        });
+
+        TableColumn<InscripcionMateria, String> colEstado = new TableColumn<>("Estado");
+        colEstado.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getEstado()));
+
+        tablaInscripciones.getColumns().setAll(colId, colMateria, colFecha, colEstado);
+
         cargarMateriasDisponibles();
         cargarInscripcionesAlumno();
     }
+
 
     private void cargarMateriasDisponibles() {
         List<MateriaDisponible> materias = service.obtenerMateriasDisponibles(alumnoId, carreraId);

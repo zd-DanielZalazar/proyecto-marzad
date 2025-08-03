@@ -73,6 +73,22 @@ public class AlumnoDAO {
         }
         return false;
     }
+    /** obtiene Id por usuario */
+    public int obtenerIdPorUsuarioId(int usuarioId) {
+        String sql = "SELECT id FROM alumnos WHERE usuario_id = ?";
+        try (Connection c = ConexionBD.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, usuarioId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1; // No encontrado
+    }
+
 
     /** Actualiza un alumno existente */
     public boolean update(Alumno a) {

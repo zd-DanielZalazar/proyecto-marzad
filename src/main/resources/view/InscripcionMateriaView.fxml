@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.sga.marzad.controller.InscripcionMateriaController"
+            prefWidth="900" prefHeight="600"
+            styleClass="main-bg">
+
+    <top>
+        <VBox spacing="8">
+            <Label text="Inscripción a Materias" styleClass="title"/>
+            <HBox spacing="20">
+                <Label text="Carrera:" styleClass="subtitle"/>
+                <Label fx:id="lblCarrera" styleClass="subtitle-value"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <TabPane fx:id="tabPaneAnios" tabClosingPolicy="UNAVAILABLE"/>
+    </center>
+</BorderPane>

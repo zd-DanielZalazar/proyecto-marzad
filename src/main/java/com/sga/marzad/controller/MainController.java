@@ -132,7 +132,8 @@ public class MainController implements Initializable {
         MenuItem materias = new MenuItem("Inscripción a Materias");
         MenuItem examenes = new MenuItem("Inscripción a Exámenes Finales");
 
-        materias.setOnAction(e -> abrirVentanaModal("/view/AlumnosView.fxml", "Inscripción a Materias"));
+        materias.setOnAction(e -> abrirVentanaModal("/view/InscripcionMateriaView.fxml", "Inscripción a Materias"));
+
         examenes.setOnAction(e -> mostrarAlertaInfo("Esta vista aún no está disponible."));
 
         inscripciones.getItems().addAll(materias, examenes);

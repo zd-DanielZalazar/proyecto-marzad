@@ -2,6 +2,7 @@ package com.sga.marzad.controller;
 
 import com.sga.marzad.Main;
 import com.sga.marzad.model.Usuario;
+import com.sga.marzad.utils.UsuarioSesion;
 import com.sga.marzad.viewmodel.LoginViewModel;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -28,13 +29,32 @@ public class LoginController {
         Usuario u = vm.autenticar(user, pass);
 
         if (u != null) {
+            UsuarioSesion.limpiarSesion();
+            UsuarioSesion.setUserName(u.getUsername());
+            UsuarioSesion.setRol(u.getRol());
+            UsuarioSesion.setUsuarioId(u.getId());
+
+            if ("ALUMNO".equalsIgnoreCase(u.getRol())) {
+                int alumnoId = vm.obtenerAlumnoIdPorUsuarioId(u.getId());
+                if (alumnoId == -1) {
+                    new Alert(Alert.AlertType.ERROR, "No se encontró registro de alumno para este usuario.").showAndWait();
+                    return;
+                }
+                UsuarioSesion.setAlumnoId(alumnoId);
+            } else if ("DOCENTE".equalsIgnoreCase(u.getRol())) {
+                int docenteId = vm.obtenerDocenteIdPorUsuarioId(u.getId());
+                if (docenteId == -1) {
+                    new Alert(Alert.AlertType.ERROR, "No se encontró registro de docente para este usuario.").showAndWait();
+                    return;
+                }
+                UsuarioSesion.setDocenteId(docenteId);
+            }
+
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainView.fxml"));
                 Parent root = loader.load();
-
                 MainController mainController = loader.getController();
                 mainController.setUsuarioActual(u);
-
 
                 Stage stage = new Stage();
                 stage.setScene(new Scene(root));
@@ -56,7 +76,6 @@ public class LoginController {
 
     @FXML
     private void onRegister() {
-        // Abrir modal de registro
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/RegistroView.fxml"));
             Parent root = loader.load();
@@ -70,5 +89,5 @@ public class LoginController {
             e.printStackTrace();
         }
     }
-
 }
+
