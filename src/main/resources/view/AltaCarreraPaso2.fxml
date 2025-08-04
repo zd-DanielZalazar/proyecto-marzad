@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="20" alignment="CENTER" styleClass="wizard-bg" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.sga.marzad.controller.AltaCarreraPaso2Controller">
+
+    <Label text="Alta de Materias para la Carrera" styleClass="wizard-title"/>
+    <Label fx:id="lblCarreraInfo" style="-fx-font-size: 14px;"/>
+
+    <GridPane hgap="10" vgap="10" alignment="CENTER">
+        <Label text="Nombre de la materia:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtNombreMateria" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="Año:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="comboAnio" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Docente:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="comboDocente" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+        <Label text="Día de cursada:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="comboDia" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+        <Label text="Hora de inicio:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="comboHora" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <HBox spacing="10" alignment="CENTER">
+        <Button text="Agregar Materia" onAction="#onAgregarMateria"/>
+        <Button text="Limpiar Campos" onAction="#onLimpiarCampos"/>
+    </HBox>
+
+    <Label text="Materias agregadas:" style="-fx-font-size: 14px;"/>
+    <TableView fx:id="tablaMaterias" prefHeight="200" prefWidth="700">
+        <columns>
+            <TableColumn text="Nombre" fx:id="colNombre"/>
+            <TableColumn text="Año" fx:id="colAnio"/>
+            <TableColumn text="Docente" fx:id="colDocente"/>
+            <TableColumn text="Día" fx:id="colDia"/>
+            <TableColumn text="Hora" fx:id="colHora"/>
+            <TableColumn text="Acciones" fx:id="colAcciones"/>
+        </columns>
+    </TableView>
+
+    <HBox spacing="20" alignment="CENTER">
+        <Button text="Anterior" onAction="#onAnterior"/>
+        <Button text="Siguiente" onAction="#onSiguiente"/>
+    </HBox>
+</VBox>
