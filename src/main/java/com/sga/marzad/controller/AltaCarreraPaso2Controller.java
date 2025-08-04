@@ -80,18 +80,18 @@ public class AltaCarreraPaso2Controller {
         comboHora.setItems(horas);
 
         // --- Tabla materias ---
-        colNombre.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().nombre));
-        colAnio.setCellValueFactory(data -> new javafx.beans.property.SimpleIntegerProperty(data.getValue().anio).asObject());
+        colNombre.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getNombre()));
+        colAnio.setCellValueFactory(data -> new javafx.beans.property.SimpleIntegerProperty(data.getValue().getAnio()).asObject());
         colDocente.setCellValueFactory(data -> {
-            int docenteId = data.getValue().docenteId;
+            int docenteId = data.getValue().getDocenteId();
             Docente docente = docentesDisponibles.stream()
                     .filter(d -> d.getId() == docenteId)
                     .findFirst()
                     .orElse(null);
             return new javafx.beans.property.SimpleStringProperty(docente != null ? docente.getNombre() + " " + docente.getApellido() : "");
         });
-        colDia.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().dia));
-        colHora.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().hora));
+        colDia.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getDia()));
+        colHora.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getHora()));
         colAcciones.setCellFactory(col -> new TableCell<>() {
             private final Button btnEliminar = new Button("Eliminar");
             {
@@ -126,18 +126,18 @@ public class AltaCarreraPaso2Controller {
 
         // Validar que no se repita nombre en el mismo año
         for (MateriaWizard mat : materiasObservable) {
-            if (mat.nombre.equalsIgnoreCase(nombre) && mat.anio == anio) {
+            if (mat.getNombre().equalsIgnoreCase(nombre) && mat.getAnio() == anio) {
                 showAlert("Ya existe una materia con ese nombre en el mismo año.");
                 return;
             }
         }
 
         MateriaWizard nueva = new MateriaWizard();
-        nueva.nombre = nombre;
-        nueva.anio = anio;
-        nueva.docenteId = docente.getId(); // <<---- IMPORTANTE: guarda el ID
-        nueva.dia = dia;
-        nueva.hora = hora;
+        nueva.setNombre(nombre);
+        nueva.setAnio(anio);
+        nueva.setDocenteId(docente.getId()); // <<---- IMPORTANTE: guarda el ID
+        nueva.setDia(dia);
+        nueva.setHora(hora);
 
         materiasObservable.add(nueva);
         wizardData.getMaterias().add(nueva);

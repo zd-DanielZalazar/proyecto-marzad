@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.sga.marzad.controller.CarrerasMateriasController">
+
+    <!-- Lista de carreras a la izquierda -->
+    <left>
+        <VBox spacing="10" style="-fx-padding: 15;">
+            <Label text="Carreras"/>
+            <ListView fx:id="listCarreras" prefWidth="220" />
+        </VBox>
+    </left>
+
+    <!-- Detalle de carrera y materias (tabla editable) a la derecha -->
+    <center>
+        <VBox spacing="15" style="-fx-padding: 20;">
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Datos de la Carrera" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                <Label fx:id="lblCarreraEstado" text="" style="-fx-font-size: 13px; -fx-text-fill: #888;"/>
+            </HBox>
+            <GridPane hgap="12" vgap="10">
+                <Label text="Código:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <TextField fx:id="tfCodigo" editable="false" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                <Label text="Nombre:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <TextField fx:id="tfNombre" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                <Label text="Descripción:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <TextArea fx:id="taDescripcion" prefRowCount="2" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                <Button text="Guardar Cambios" fx:id="btnGuardarCarrera" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                <Button text="Deshabilitar Carrera" fx:id="btnDeshabilitarCarrera" style="-fx-background-color: #f33; -fx-text-fill: white;" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+            </GridPane>
+            <Separator />
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Materias de la Carrera" style="-fx-font-size: 15px; -fx-font-weight: bold;"/>
+                <Button text="Agregar Materia" fx:id="btnAgregarMateria"/>
+            </HBox>
+            <TableView fx:id="tablaMaterias" editable="true" prefHeight="320">
+                <columns>
+                    <TableColumn text="Nombre" fx:id="colNombre"/>
+                    <TableColumn text="Año" fx:id="colAnio"/>
+                    <TableColumn text="Cuatrimestre" fx:id="colCuatrimestre"/>
+                    <TableColumn text="Créditos" fx:id="colCreditos"/>
+                    <TableColumn text="Correlativas" fx:id="colCorrelativas"/>
+                    <TableColumn text="Docente" fx:id="colDocente"/>
+                    <TableColumn text="Horario" fx:id="colHorario"/>
+                    <TableColumn text="Acciones" fx:id="colAcciones"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+</BorderPane>

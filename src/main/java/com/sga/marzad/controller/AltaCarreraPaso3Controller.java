@@ -27,7 +27,7 @@ public class AltaCarreraPaso3Controller {
         listMaterias.setCellFactory(lv -> new ListCell<>() {
             @Override protected void updateItem(MateriaWizard item, boolean empty) {
                 super.updateItem(item, empty);
-                setText((empty || item == null) ? null : item.nombre + " (" + item.anio + "°)");
+                setText((empty || item == null) ? null : item.getNombre() + " (" + item.getAnio() + "°)");
             }
         });
         listMaterias.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
@@ -42,28 +42,28 @@ public class AltaCarreraPaso3Controller {
     private void actualizarCorrelativas() {
         if (materiaSeleccionada == null) return;
         List<MateriaWizard> posibles = materias.stream()
-                .filter(m -> m.anio < materiaSeleccionada.anio && !m.equals(materiaSeleccionada))
+                .filter(m -> m.getAnio() < materiaSeleccionada.getAnio() && !m.equals(materiaSeleccionada))
                 .collect(Collectors.toList());
         List<MateriaWizard> asignadas = new ArrayList<>();
-        for (Integer corrId : materiaSeleccionada.correlativas)
+        for (Integer corrId : materiaSeleccionada.getCorrelativas())
             materias.stream().filter(m -> m.hashCode() == corrId).findFirst().ifPresent(asignadas::add);
         List<MateriaWizard> noAsignadas = posibles.stream()
-                .filter(m -> !materiaSeleccionada.correlativas.contains(m.hashCode()))
+                .filter(m -> !materiaSeleccionada.getCorrelativas().contains(m.hashCode()))
                 .collect(Collectors.toList());
         listCorrelativasPosibles.setItems(FXCollections.observableArrayList(noAsignadas));
         listCorrelativasAsignadas.setItems(FXCollections.observableArrayList(asignadas));
     }
     @FXML private void onAgregarCorrelativa() {
         MateriaWizard sel = listCorrelativasPosibles.getSelectionModel().getSelectedItem();
-        if (sel != null && materiaSeleccionada != null && !materiaSeleccionada.correlativas.contains(sel.hashCode())) {
-            materiaSeleccionada.correlativas.add(sel.hashCode());
+        if (sel != null && materiaSeleccionada != null && !materiaSeleccionada.getCorrelativas().contains(sel.hashCode())) {
+            materiaSeleccionada.getCorrelativas().add(sel.hashCode());
             actualizarCorrelativas();
         }
     }
     @FXML private void onQuitarCorrelativa() {
         MateriaWizard sel = listCorrelativasAsignadas.getSelectionModel().getSelectedItem();
         if (sel != null && materiaSeleccionada != null) {
-            materiaSeleccionada.correlativas.remove(Integer.valueOf(sel.hashCode()));
+            materiaSeleccionada.getCorrelativas().remove(Integer.valueOf(sel.hashCode()));
             actualizarCorrelativas();
         }
     }

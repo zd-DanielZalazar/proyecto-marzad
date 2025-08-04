@@ -131,17 +131,25 @@ public class MainController implements Initializable {
     private void cargarMenu() {
         menuBar.getMenus().clear(); // LIMPIAR ANTES DE AGREGAR
 
-        // --------- MENÚ DE ALTA DE CARRERAS SOLO PARA ADMIN ---------
+        // --------- MENÚ DE CARRERAS SOLO PARA ADMIN ---------
         if (usuarioActual != null && "ADMIN".equalsIgnoreCase(usuarioActual.getRol())) {
+            // Opción de alta
             MenuItem altaCarreraMateriaItem = new MenuItem("Alta de carreras y materias");
             altaCarreraMateriaItem.setOnAction(e -> abrirVentanaModal("/view/AltaCarreraWizard.fxml", "Alta de carreras y materias"));
-            Menu adminMenu = new Menu("Carreras"); //
-            adminMenu.getItems().add(altaCarreraMateriaItem);
-            // Usar solo el MenuItem suelto visualmente:
-            altaCarreraMateriaItem.setStyle("-fx-font-weight: bold;");
 
-            // Insertar el Menu antes de Inscripciones
-            menuBar.getMenus().add(0, adminMenu);
+            // Opción de edición
+            MenuItem editarCarreraMateriaItem = new MenuItem("Editar carrera y materias");
+            editarCarreraMateriaItem.setOnAction(e -> abrirVentanaModal("/view/CarrerasMateriasView.fxml", "Editar carrera y materias"));
+
+            // Menú padre
+            Menu adminMenu = new Menu("Carrera");
+            adminMenu.getItems().addAll(altaCarreraMateriaItem, editarCarreraMateriaItem);
+
+            // Opcional: estilo visual (no todos los sistemas aplican el setStyle, podés quitarlo si no ves efecto)
+            altaCarreraMateriaItem.setStyle("-fx-font-weight: bold;");
+            editarCarreraMateriaItem.setStyle("-fx-font-weight: bold;");
+
+            menuBar.getMenus().add(0, adminMenu); // Insertar primero
         }
 
 
