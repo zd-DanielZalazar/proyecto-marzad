@@ -24,21 +24,33 @@ public class InscripcionMateriaController {
     @FXML
     private TableView<InscripcionMateria> tablaInscripciones;
 
-    private InscripcionMateriaService service = new InscripcionMateriaService();
+    @FXML
+    private Label lblCarrera;
 
-    // Debes cargar estos valores según el usuario logueado
-    private int alumnoId = 1; // Ejemplo, reemplaza por el id real de la sesión
-    private int carreraId = 1; // Ejemplo, reemplaza por la carrera del alumno
-    private int inscripcionCarreraId = 1; // Ejemplo, busca el id real de la inscripcion_carrera aprobada
+    private final InscripcionMateriaService service = new InscripcionMateriaService();
+
+    // Cargar estos valores desde la sesión/logueo real
+    private int alumnoId = 1; // Debe venir del usuario logueado
+    private int carreraId = 1; // Debe venir del alumno logueado
+    private int inscripcionCarreraId = 1; // El ID real de inscripcion_carrera
 
     @FXML
     public void initialize() {
-        // Configuración de columnas (esto es fundamental)
-        TableColumn<InscripcionMateria, Number> colId = new TableColumn<>("ID");
-        colId.setCellValueFactory(data -> new javafx.beans.property.SimpleIntegerProperty(data.getValue().getId()));
+        lblCarrera.setText("Analista en Sistemas"); // O el nombre dinámico que corresponda
 
-        TableColumn<InscripcionMateria, Number> colMateria = new TableColumn<>("Materia ID");
-        colMateria.setCellValueFactory(data -> new javafx.beans.property.SimpleIntegerProperty(data.getValue().getMateriaId()));
+        configurarTabla();
+        configurarComboBox();
+        cargarMateriasDisponibles();
+        cargarInscripcionesAlumno();
+
+        btnInscribir.setOnAction(event -> inscribirMateria());
+    }
+
+    private void configurarTabla() {
+        TableColumn<InscripcionMateria, String> colMateria = new TableColumn<>("Materia");
+        colMateria.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(
+                service.obtenerNombreMateriaPorId(data.getValue().getMateriaId())
+        ));
 
         TableColumn<InscripcionMateria, String> colFecha = new TableColumn<>("Fecha Inscripción");
         colFecha.setCellValueFactory(data -> {
@@ -49,16 +61,39 @@ public class InscripcionMateriaController {
         TableColumn<InscripcionMateria, String> colEstado = new TableColumn<>("Estado");
         colEstado.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getEstado()));
 
-        tablaInscripciones.getColumns().setAll(colId, colMateria, colFecha, colEstado);
-
-        cargarMateriasDisponibles();
-        cargarInscripcionesAlumno();
+        tablaInscripciones.getColumns().setAll(colMateria, colFecha, colEstado);
     }
 
+    private void configurarComboBox() {
+        // Para mostrar nombre, año y cuatrimestre
+        comboMaterias.setCellFactory(listView -> new ListCell<>() {
+            @Override
+            protected void updateItem(MateriaDisponible item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item.getNombre() + " (" + item.getAnio() + "° año, " + item.getCuatrimestre() + "° C)");
+                }
+            }
+        });
+        comboMaterias.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(MateriaDisponible item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    setText(item.getNombre() + " (" + item.getAnio() + "° año, " + item.getCuatrimestre() + "° C)");
+                }
+            }
+        });
+    }
 
     private void cargarMateriasDisponibles() {
         List<MateriaDisponible> materias = service.obtenerMateriasDisponibles(alumnoId, carreraId);
         comboMaterias.setItems(FXCollections.observableArrayList(materias));
+        comboMaterias.getSelectionModel().clearSelection();
     }
 
     private void cargarInscripcionesAlumno() {
@@ -71,14 +106,22 @@ public class InscripcionMateriaController {
     private void inscribirMateria() {
         MateriaDisponible seleccionada = comboMaterias.getValue();
         if (seleccionada == null) {
-            lblEstado.setText("Debe seleccionar una materia.");
-            lblEstado.setStyle("-fx-text-fill: #ff6666;");
+            mostrarEstado("Debe seleccionar una materia.", false);
+            return;
+        }
+        // Validación robusta: correlativas y si ya está inscripto
+        if (!service.puedeInscribirse(alumnoId, seleccionada.getId())) {
+            mostrarEstado("No cumple correlativas o ya está inscripto.", false);
             return;
         }
         String mensaje = service.inscribirAlumnoAMateria(alumnoId, seleccionada.getId(), inscripcionCarreraId);
-        lblEstado.setText(mensaje);
-        lblEstado.setStyle(mensaje.contains("éxito") ? "-fx-text-fill: #33cc33;" : "-fx-text-fill: #ff6666;");
+        mostrarEstado(mensaje, mensaje.contains("éxito"));
         cargarMateriasDisponibles();
         cargarInscripcionesAlumno();
+    }
+
+    private void mostrarEstado(String mensaje, boolean exito) {
+        lblEstado.setText(mensaje);
+        lblEstado.setStyle(exito ? "-fx-text-fill: #33cc33;" : "-fx-text-fill: #ff6666;");
     }
 }
