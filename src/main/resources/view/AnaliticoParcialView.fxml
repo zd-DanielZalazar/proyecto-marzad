@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.sga.marzad.controller.AnaliticoParcialController">
+
+    <!-- Vista del alumno -->
+    <top>
+        <VBox spacing="10" padding="15">
+            <Label text="Solicitud de Analítico Parcial" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+            <Label fx:id="lblCarrera" text="Carrera: " />
+            <TableView fx:id="tablaMaterias" prefHeight="200">
+                <columns>
+                    <TableColumn fx:id="colMateria" text="Materia" prefWidth="300" />
+                    <TableColumn fx:id="colCorrelativas" text="Correlativas" prefWidth="300" />
+                </columns>
+            </TableView>
+            <Button text="Solicitar Analítico" onAction="#onSolicitarAnalitico" />
+            <Label fx:id="lblEstadoAlumno" text="" style="-fx-text-fill: green;" />
+        </VBox>
+    </top>
+
+    <!-- Vista del secretario/admin -->
+    <center>
+        <VBox spacing="10" padding="15">
+            <Label text="Solicitudes Pendientes" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+            <TableView fx:id="tablaSolicitudes" prefHeight="200">
+                <columns>
+                    <TableColumn fx:id="colId" text="ID" prefWidth="50" />
+                    <TableColumn fx:id="colNombre" text="Nombre" prefWidth="150" />
+                    <TableColumn fx:id="colDni" text="DNI" prefWidth="100" />
+                    <TableColumn fx:id="colFecha" text="Fecha Solicitud" prefWidth="150" />
+                </columns>
+            </TableView>
+
+            <HBox spacing="10">
+                <TextField fx:id="txtFirma" promptText="Firma institucional" />
+                <TextField fx:id="txtSello" promptText="Sello institucional" />
+                <Button text="Validar y Generar PDF" onAction="#onValidarYGenerar" />
+            </HBox>
+
+            <Label fx:id="lblEstadoAdmin" text="" style="-fx-text-fill: blue;" />
+        </VBox>
+    </center>
+</BorderPane>

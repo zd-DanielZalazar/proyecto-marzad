@@ -166,11 +166,15 @@ public class MainController implements Initializable {
         MenuItem certificados = new MenuItem("Descarga Certificado Alumno Regular");
         MenuItem estadoAcademico = new MenuItem("Estado Académico");
         MenuItem estadoClases = new MenuItem("Estado de Clases");
+        MenuItem analiticoParcial = new MenuItem("Analítico Parcial");
 
         certificados.setOnAction(e -> onCertificadoAlumnoRegularClick());
         estadoAcademico.setOnAction(e -> mostrarAlertaInfo("Estado académico en desarrollo."));
         estadoClases.setOnAction(e -> mostrarAlertaInfo("Vista para docentes."));
         tramites.getItems().addAll(certificados, estadoAcademico, estadoClases);
+
+        // analitico controller
+        analiticoParcial.setOnAction(e -> abrirVentanaModal("/view/AnaliticoParcialView.fxml", "Analítico Parcial"));
 
         Menu cuenta = new Menu("Cuenta");
         MenuItem perfil = new MenuItem("Mis Datos Personales");
