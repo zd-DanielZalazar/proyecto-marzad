@@ -171,5 +171,5 @@ public class AltaCarreraPaso2Controller {
     private void showAlert(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.ERROR, mensaje, ButtonType.OK);
         alert.showAndWait();
-    }
+}
 }

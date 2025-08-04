@@ -87,5 +87,5 @@ public class AltaCarreraWizardController implements Initializable {
     private void cerrarWizard() {
         // Cierra la ventana del wizard (Stage)
         rootWizard.getScene().getWindow().hide();
-    }
+}
 }

@@ -4,7 +4,7 @@ import javafx.beans.property.*;
 import java.util.List;
 
 public class Materia {
-    // --- Campos base (para DAO y modelo) ---
+    // Campos...
     private int id;
     private int planId;
     private String nombre;
@@ -12,19 +12,17 @@ public class Materia {
     private int cuatrimestre;
     private int creditos;
     private boolean habilitado;
-    private List<Materia> correlativas; // Opcional
+    private List<Materia> correlativas;
     private String docente;
     private String horario;
 
-    // --- Properties para JavaFX (solo lo esencial para binding) ---
     private final IntegerProperty idProperty = new SimpleIntegerProperty();
     private final StringProperty nombreProperty = new SimpleStringProperty();
     private final IntegerProperty anioProperty = new SimpleIntegerProperty();
 
-    // --- Constructores ---
     public Materia() {}
 
-    // Completo para lógica/DAO:
+    // CONSTRUCTOR NECESARIO PARA DAO:
     public Materia(int id, int planId, String nombre, int anio, int cuatrimestre, int creditos, boolean habilitado) {
         this.id = id;
         this.planId = planId;
@@ -39,7 +37,6 @@ public class Materia {
         this.anioProperty.set(anio);
     }
 
-    // Constructor para JavaFX TableView:
     public Materia(int id, String nombre, int anio) {
         this.id = id;
         this.nombre = nombre;
