@@ -28,12 +28,19 @@
         <Label fx:id="lblEstado" style="-fx-text-fill: white; -fx-font-size: 14px;"/>
 
         <!-- Tabla de inscripciones -->
-        <TableView fx:id="tablaInscripciones" prefHeight="320" prefWidth="760" style="-fx-background-color: transparent;">
+        <TableView fx:id="tablaInscripciones"
+                   prefHeight="320"
+                   prefWidth="760"
+                   style="-fx-background-color: transparent;">
             <columns>
-                <TableColumn fx:id="colMateria" text="Materia" prefWidth="240"/>
-                <TableColumn fx:id="colFecha" text="Fecha Inscripción" prefWidth="220"/>
-                <TableColumn fx:id="colEstado" text="Estado" prefWidth="120"/>
+                <TableColumn fx:id="colMateria" text="Materia" prefWidth="210"/>
+                <TableColumn fx:id="colAnioCuatrimestre" text="Año/Cuat." prefWidth="100"/>
+                <TableColumn fx:id="colFecha" text="Fecha Inscripción" prefWidth="180"/>
+                <TableColumn fx:id="colEstado" text="Estado" prefWidth="100"/>
             </columns>
+            <placeholder>
+                <Label text="Aún no tiene inscripciones" style="-fx-text-fill: #cccccc; -fx-font-size: 16px;"/>
+            </placeholder>
         </TableView>
     </VBox>
 </StackPane>

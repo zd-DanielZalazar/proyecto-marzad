@@ -12,38 +12,40 @@ import java.util.List;
 
 public class InscripcionMateriaController {
 
-    @FXML
-    private ComboBox<MateriaDisponible> comboMaterias;
-
-    @FXML
-    private Button btnInscribir;
-
-    @FXML
-    private Label lblEstado;
-
-    @FXML
-    private TableView<InscripcionMateria> tablaInscripciones;
-
-    @FXML
-    private Label lblCarrera;
+    @FXML private ComboBox<MateriaDisponible> comboMaterias;
+    @FXML private Button btnInscribir;
+    @FXML private Label lblEstado;
+    @FXML private TableView<InscripcionMateria> tablaInscripciones;
+    @FXML private Label lblCarrera;
 
     private final InscripcionMateriaService service = new InscripcionMateriaService();
 
-    // Cargar estos valores desde la sesión/logueo real
-    private int alumnoId = 1; // Debe venir del usuario logueado
-    private int carreraId = 1; // Debe venir del alumno logueado
-    private int inscripcionCarreraId = 1; // El ID real de inscripcion_carrera
+    // Estos valores deben setearse al loguear
+    private int alumnoId = 1; // Reemplazalo al loguear
+    private int carreraId = 1; // Reemplazalo según el alumno
+    private int inscripcionCarreraId = 1; // Debe venir de la tabla inscripciones_carrera
 
     @FXML
     public void initialize() {
-        lblCarrera.setText("Analista en Sistemas"); // O el nombre dinámico que corresponda
-
+        lblCarrera.setText("Analista en Sistemas"); // Cambia por el nombre dinámico de la carrera
         configurarTabla();
         configurarComboBox();
+
+        // Cargar datos al iniciar
         cargarMateriasDisponibles();
         cargarInscripcionesAlumno();
 
         btnInscribir.setOnAction(event -> inscribirMateria());
+    }
+
+    // Permite setear los IDs desde el login o main (mejor para futuro)
+    public void setDatosAlumno(int alumnoId, int carreraId, int inscripcionCarreraId, String nombreCarrera) {
+        this.alumnoId = alumnoId;
+        this.carreraId = carreraId;
+        this.inscripcionCarreraId = inscripcionCarreraId;
+        this.lblCarrera.setText(nombreCarrera);
+        cargarMateriasDisponibles();
+        cargarInscripcionesAlumno();
     }
 
     private void configurarTabla() {
@@ -65,7 +67,6 @@ public class InscripcionMateriaController {
     }
 
     private void configurarComboBox() {
-        // Para mostrar nombre, año y cuatrimestre
         comboMaterias.setCellFactory(listView -> new ListCell<>() {
             @Override
             protected void updateItem(MateriaDisponible item, boolean empty) {
@@ -91,15 +92,23 @@ public class InscripcionMateriaController {
     }
 
     private void cargarMateriasDisponibles() {
-        List<MateriaDisponible> materias = service.obtenerMateriasDisponibles(alumnoId, carreraId);
-        comboMaterias.setItems(FXCollections.observableArrayList(materias));
-        comboMaterias.getSelectionModel().clearSelection();
+        try {
+            List<MateriaDisponible> materias = service.obtenerMateriasDisponibles(alumnoId, carreraId);
+            comboMaterias.setItems(FXCollections.observableArrayList(materias));
+            comboMaterias.getSelectionModel().clearSelection();
+        } catch (Exception e) {
+            mostrarEstado("Error cargando materias: " + e.getMessage(), false);
+        }
     }
 
     private void cargarInscripcionesAlumno() {
-        List<InscripcionMateria> inscripciones = service.obtenerInscripcionesPorAlumno(alumnoId);
-        ObservableList<InscripcionMateria> data = FXCollections.observableArrayList(inscripciones);
-        tablaInscripciones.setItems(data);
+        try {
+            List<InscripcionMateria> inscripciones = service.obtenerInscripcionesPorAlumno(alumnoId);
+            ObservableList<InscripcionMateria> data = FXCollections.observableArrayList(inscripciones);
+            tablaInscripciones.setItems(data);
+        } catch (Exception e) {
+            mostrarEstado("Error cargando inscripciones: " + e.getMessage(), false);
+        }
     }
 
     @FXML
@@ -109,15 +118,19 @@ public class InscripcionMateriaController {
             mostrarEstado("Debe seleccionar una materia.", false);
             return;
         }
-        // Validación robusta: correlativas y si ya está inscripto
-        if (!service.puedeInscribirse(alumnoId, seleccionada.getId())) {
-            mostrarEstado("No cumple correlativas o ya está inscripto.", false);
-            return;
+        try {
+            // Validación robusta: correlativas y si ya está inscripto
+            if (!service.puedeInscribirse(alumnoId, seleccionada.getId())) {
+                mostrarEstado("No cumple correlativas o ya está inscripto.", false);
+                return;
+            }
+            String mensaje = service.inscribirAlumnoAMateria(alumnoId, seleccionada.getId(), inscripcionCarreraId);
+            mostrarEstado(mensaje, mensaje.contains("éxito"));
+            cargarMateriasDisponibles();
+            cargarInscripcionesAlumno();
+        } catch (Exception e) {
+            mostrarEstado("Error al inscribir: " + e.getMessage(), false);
         }
-        String mensaje = service.inscribirAlumnoAMateria(alumnoId, seleccionada.getId(), inscripcionCarreraId);
-        mostrarEstado(mensaje, mensaje.contains("éxito"));
-        cargarMateriasDisponibles();
-        cargarInscripcionesAlumno();
     }
 
     private void mostrarEstado(String mensaje, boolean exito) {

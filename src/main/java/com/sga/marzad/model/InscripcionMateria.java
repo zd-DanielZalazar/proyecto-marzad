@@ -41,4 +41,16 @@ public class InscripcionMateria {
     public void setInscripcionCarreraId(int inscripcionCarreraId) { this.inscripcionCarreraId = inscripcionCarreraId; }
     public void setFechaInsc(LocalDateTime fechaInsc) { this.fechaInsc = fechaInsc; }
     public void setEstado(String estado) { this.estado = estado; }
+
+    @Override
+    public String toString() {
+        return "InscripcionMateria{" +
+                "id=" + id +
+                ", alumnoId=" + alumnoId +
+                ", materiaId=" + materiaId +
+                ", inscripcionCarreraId=" + inscripcionCarreraId +
+                ", fechaInsc=" + fechaInsc +
+                ", estado='" + estado + '\'' +
+                '}';
+    }
 }

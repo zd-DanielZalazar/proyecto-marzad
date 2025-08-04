@@ -194,5 +194,24 @@
     -fx-font-weight: bold;
 }
 
+/* --------- cebra --------- */
+
+.table-row-cell:odd {
+    -fx-background-color: #1d4675;
+}
+.table-row-cell:even {
+    -fx-background-color: #204b82;
+}
+.table-row-cell:selected {
+    -fx-background-color: #12e0c7;
+}
+.table-view {
+    -fx-table-cell-border-color: transparent;
+    -fx-background-insets: 0;
+}
+
+
+
+
 /* --------- Iconos --------- */
 /* Para Ikonli solo hace falta agregar la clase de botón y usar el graphicNode */

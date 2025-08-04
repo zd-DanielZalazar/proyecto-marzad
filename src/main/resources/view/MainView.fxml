@@ -68,7 +68,7 @@
 
             <!-- Descripción -->
            <TextFlow maxWidth="800">
-               <Text style="-fx-font-size: 16px; -fx-fill: #FFC845;">
+               <Text style="-fx-font-size: 16px; -fx-fill: #FFC845; text-center">
 
 
                    Esta es una plataforma digital vanguardista para optimizar la experiencia educativa. Este sistema integral de gestión centraliza, automatiza y simplifica procesos académicos y administrativos, beneficiando a estudiantes, docentes y personal.

@@ -124,6 +124,83 @@ public class MainController implements Initializable {
         lblReloj.setText(capitalize(fechaFormateada));
     }
 
+    private int buscarAlumnoIdPorUsuarioId(int usuarioId) {
+        try (Connection conn = ConexionBD.getConnection()) {
+            String sql = "SELECT id FROM alumnos WHERE usuario_id = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, usuarioId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) return rs.getInt("id");
+        } catch (SQLException e) { e.printStackTrace(); }
+        return -1;
+    }
+
+    private int buscarCarreraIdPorAlumnoId(int alumnoId) {
+        try (Connection conn = ConexionBD.getConnection()) {
+            String sql = "SELECT carrera_id FROM inscripciones_carrera WHERE alumno_id = ? AND estado IN ('APROBADA','PENDIENTE')";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, alumnoId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) return rs.getInt("carrera_id");
+        } catch (SQLException e) { e.printStackTrace(); }
+        return -1;
+    }
+
+    private int buscarInscripcionCarreraId(int alumnoId, int carreraId) {
+        try (Connection conn = ConexionBD.getConnection()) {
+            String sql = "SELECT id FROM inscripciones_carrera WHERE alumno_id = ? AND carrera_id = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, alumnoId);
+            stmt.setInt(2, carreraId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) return rs.getInt("id");
+        } catch (SQLException e) { e.printStackTrace(); }
+        return -1;
+    }
+
+    private String obtenerNombreCarreraPorId(int carreraId) {
+        try (Connection conn = ConexionBD.getConnection()) {
+            String sql = "SELECT nombre FROM carreras WHERE id = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, carreraId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) return rs.getString("nombre");
+        } catch (SQLException e) { e.printStackTrace(); }
+        return "";
+    }
+
+
+    private void abrirVentanaInscripcionMateria() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/InscripcionMateriaView.fxml"));
+            Parent root = loader.load();
+            InscripcionMateriaController controller = loader.getController();
+
+            // === DATOS DEL ALUMNO ACTUAL ===
+            int alumnoId = buscarAlumnoIdPorUsuarioId(usuarioActual.getId());
+            int carreraId = buscarCarreraIdPorAlumnoId(alumnoId);
+            int inscripcionCarreraId = buscarInscripcionCarreraId(alumnoId, carreraId);
+            String nombreCarrera = obtenerNombreCarreraPorId(carreraId);
+
+            // PASAR LOS DATOS AL CONTROLLER
+            controller.setDatosAlumno(alumnoId, carreraId, inscripcionCarreraId, nombreCarrera);
+
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(Main.class.getResource("/css/estilos.css").toExternalForm());
+
+            Stage stage = new Stage();
+            stage.setTitle("Inscripción a Materias");
+            stage.setScene(scene);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setResizable(false);
+            stage.showAndWait();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarAlertaInfo("No se pudo abrir la vista de inscripción de materias.");
+        }
+    }
+
     private String capitalize(String texto) {
         return texto.substring(0, 1).toUpperCase() + texto.substring(1);
     }
@@ -158,7 +235,7 @@ public class MainController implements Initializable {
         MenuItem materias = new MenuItem("Inscripción a Materias");
         MenuItem examenes = new MenuItem("Inscripción a Exámenes Finales");
 
-        materias.setOnAction(e -> abrirVentanaModal("/view/InscripcionMateriaView.fxml", "Inscripción a Materias"));
+        materias.setOnAction(e -> abrirVentanaInscripcionMateria());
         examenes.setOnAction(e -> mostrarAlertaInfo("Esta vista aún no está disponible."));
         inscripciones.getItems().addAll(materias, examenes);
 
