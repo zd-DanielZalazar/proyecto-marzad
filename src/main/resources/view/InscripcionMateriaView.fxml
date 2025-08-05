@@ -7,7 +7,8 @@
            prefWidth="900" prefHeight="600"
            styleClass="main-bg">
 
-    <VBox spacing="26" alignment="TOP_CENTER" prefWidth="800" prefHeight="550" style="-fx-background-color: #153960; -fx-background-radius: 18;">
+    <VBox spacing="26" alignment="TOP_CENTER" prefWidth="800" prefHeight="550"
+          style="-fx-background-color: #153960; -fx-background-radius: 18;">
         <Label text="Inscripción a Materias" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: white;"/>
 
         <!-- Carrera -->
@@ -21,7 +22,8 @@
             <Label text="Materia" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;"/>
             <HBox alignment="CENTER" spacing="8">
                 <ComboBox fx:id="comboMaterias" prefWidth="360"/>
-                <Button fx:id="btnInscribir" text="Inscribirse" style="-fx-background-color: #12e0c7; -fx-font-size: 16px;"/>
+                <Button fx:id="btnInscribir" text="Inscribirse"
+                        style="-fx-background-color: #12e0c7; -fx-font-size: 16px;"/>
             </HBox>
         </VBox>
 
@@ -34,7 +36,6 @@
                    style="-fx-background-color: transparent;">
             <columns>
                 <TableColumn fx:id="colMateria" text="Materia" prefWidth="210"/>
-                <TableColumn fx:id="colAnioCuatrimestre" text="Año/Cuat." prefWidth="100"/>
                 <TableColumn fx:id="colFecha" text="Fecha Inscripción" prefWidth="180"/>
                 <TableColumn fx:id="colEstado" text="Estado" prefWidth="100"/>
             </columns>
@@ -42,5 +43,6 @@
                 <Label text="Aún no tiene inscripciones" style="-fx-text-fill: #cccccc; -fx-font-size: 16px;"/>
             </placeholder>
         </TableView>
+
     </VBox>
 </StackPane>

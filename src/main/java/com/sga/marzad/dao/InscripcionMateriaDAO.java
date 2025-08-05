@@ -147,17 +147,17 @@ public class InscripcionMateriaDAO {
     public List<MateriaDisponible> materiasDisponibles(int alumnoId, int carreraId) {
         List<MateriaDisponible> lista = new ArrayList<>();
         String sql = """
-            SELECT m.id, m.nombre, m.anio, m.cuatrimestre
-              FROM materias m
-              JOIN planes_estudio p ON m.plan_id = p.id
-              JOIN carreras c ON p.carrera_id = c.id
-              JOIN inscripciones_carrera ic ON ic.carrera_id = c.id AND ic.alumno_id = ?
-             WHERE c.id = ?
-               AND ic.estado IN ('APROBADA', 'PENDIENTE') -- <-- así acepta ambos estados si tu lógica lo permite
-               AND m.id NOT IN (
-                   SELECT materia_id FROM inscripciones WHERE alumno_id = ? AND estado = 'ACTIVA'
-               )
-            """;
+        SELECT m.id, m.nombre, m.anio, m.cuatrimestre
+          FROM materias m
+          JOIN planes_estudio p ON m.plan_id = p.id
+          JOIN carreras c ON p.carrera_id = c.id
+          JOIN inscripciones_carrera ic ON ic.carrera_id = c.id AND ic.alumno_id = ?
+         WHERE c.id = ?
+           AND ic.estado IN ('APROBADA', 'PENDIENTE')
+           AND m.id NOT IN (
+               SELECT materia_id FROM inscripciones WHERE alumno_id = ? AND estado = 'ACTIVA'
+           )
+    """;
         try (Connection c = ConexionBD.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, alumnoId);
@@ -165,22 +165,40 @@ public class InscripcionMateriaDAO {
             ps.setInt(3, alumnoId);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
+                // GUARDAR EN VARIABLES LOCALES PRIMERO
                 int materiaId = rs.getInt("id");
-                MateriaDisponible mat = new MateriaDisponible(
-                        materiaId,
-                        rs.getString("nombre"),
-                        rs.getInt("anio"),
-                        rs.getInt("cuatrimestre"),
-                        getCorrelativasNombres(materiaId),
-                        "DISPONIBLE"
-                );
-                lista.add(mat);
+                String nombre = rs.getString("nombre");
+                int anio = rs.getInt("anio");
+                int cuatrimestre = rs.getInt("cuatrimestre");
+
+                // AHORA HACER LOS OTROS QUERIES
+                List<Integer> correlativas = getCorrelativasIds(materiaId);
+                boolean cumpleTodas = true;
+                for (int correlativaId : correlativas) {
+                    if (!materiaAprobada(alumnoId, correlativaId)) {
+                        cumpleTodas = false;
+                        break;
+                    }
+                }
+                if (cumpleTodas) {
+                    MateriaDisponible mat = new MateriaDisponible(
+                            materiaId,
+                            nombre,
+                            anio,
+                            cuatrimestre,
+                            getCorrelativasNombres(materiaId),
+                            "DISPONIBLE"
+                    );
+                    lista.add(mat);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return lista;
     }
+
+
 
     /**
      * Devuelve el nombre de la materia por su ID.
