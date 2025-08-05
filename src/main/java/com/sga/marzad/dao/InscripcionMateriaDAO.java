@@ -153,7 +153,7 @@ public class InscripcionMateriaDAO {
               JOIN carreras c ON p.carrera_id = c.id
               JOIN inscripciones_carrera ic ON ic.carrera_id = c.id AND ic.alumno_id = ?
              WHERE c.id = ?
-               AND ic.estado IN ('APROBADA', 'PENDIENTE') -- <-- así acepta ambos estados si tu lógica lo permite
+               AND ic.estado IN ('APROBADA', 'PENDIENTE')
                AND m.id NOT IN (
                    SELECT materia_id FROM inscripciones WHERE alumno_id = ? AND estado = 'ACTIVA'
                )

@@ -9,6 +9,9 @@ public class NuevaCarreraWizardData {
     private int duracionAnios;
     private List<MateriaWizard> materias;
 
+    // *** AGREGAR ESTO ***
+    private String nombrePlanEstudio;
+
     public NuevaCarreraWizardData() {
         materias = new ArrayList<>();
     }
@@ -25,6 +28,15 @@ public class NuevaCarreraWizardData {
 
     public List<MateriaWizard> getMaterias() { return materias; }
     public void setMaterias(List<MateriaWizard> materias) { this.materias = materias; }
+
+    // *** AGREGAR ESTOS MÉTODOS ***
+    public String getNombrePlanEstudio() {
+        return nombrePlanEstudio;
+    }
+
+    public void setNombrePlanEstudio(String nombrePlanEstudio) {
+        this.nombrePlanEstudio = nombrePlanEstudio;
+    }
 
     // Clase interna para las materias agregadas en el wizard
     public static class MateriaWizard {

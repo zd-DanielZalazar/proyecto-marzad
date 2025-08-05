@@ -20,30 +20,30 @@ public class InscripcionMateriaController {
 
     private final InscripcionMateriaService service = new InscripcionMateriaService();
 
-    // Estos valores deben setearse al loguear
-    private int alumnoId = 1; // Reemplazalo al loguear
-    private int carreraId = 1; // Reemplazalo según el alumno
-    private int inscripcionCarreraId = 1; // Debe venir de la tabla inscripciones_carrera
+    // ATRIBUTOS DE CLASE: ¡DEBEN IR AQUÍ!
+    private int alumnoId;
+    private int carreraId;
+    private int inscripcionCarreraId;
 
     @FXML
     public void initialize() {
-        lblCarrera.setText("Analista en Sistemas"); // Cambia por el nombre dinámico de la carrera
+        lblCarrera.setText(""); // Se setea dinámico luego
         configurarTabla();
         configurarComboBox();
 
-        // Cargar datos al iniciar
-        cargarMateriasDisponibles();
-        cargarInscripcionesAlumno();
+        // Si ya tenés los datos, los cargás acá. Si no, esperás a setDatosAlumno().
+        // cargarMateriasDisponibles();
+        // cargarInscripcionesAlumno();
 
         btnInscribir.setOnAction(event -> inscribirMateria());
     }
 
-    // Permite setear los IDs desde el login o main (mejor para futuro)
+    // Permite setear los IDs desde el login o main (llamalo al abrir la pantalla)
     public void setDatosAlumno(int alumnoId, int carreraId, int inscripcionCarreraId, String nombreCarrera) {
         this.alumnoId = alumnoId;
         this.carreraId = carreraId;
         this.inscripcionCarreraId = inscripcionCarreraId;
-        this.lblCarrera.setText(nombreCarrera);
+        this.lblCarrera.setText(nombreCarrera != null ? nombreCarrera : "");
         cargarMateriasDisponibles();
         cargarInscripcionesAlumno();
     }
@@ -96,6 +96,7 @@ public class InscripcionMateriaController {
             List<MateriaDisponible> materias = service.obtenerMateriasDisponibles(alumnoId, carreraId);
             comboMaterias.setItems(FXCollections.observableArrayList(materias));
             comboMaterias.getSelectionModel().clearSelection();
+            btnInscribir.setDisable(materias.isEmpty());
         } catch (Exception e) {
             mostrarEstado("Error cargando materias: " + e.getMessage(), false);
         }
