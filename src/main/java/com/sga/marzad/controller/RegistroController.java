@@ -16,6 +16,7 @@ import java.util.ResourceBundle;
 public class RegistroController implements Initializable {
 
     @FXML private StackPane contenedorRegistro;
+    @FXML private ComboBox<String> comboCarreras;
 
     @FXML private VBox vboxTipoUsuario, vboxAlumno, vboxDocente;
 
@@ -33,6 +34,7 @@ public class RegistroController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         comboGeneroAlumno.setItems(FXCollections.observableArrayList("F", "M", "Otro"));
         comboGeneroDocente.setItems(FXCollections.observableArrayList("F", "M", "Otro"));
+        cargarCarrerasDisponibles();
     }
 
     @FXML
@@ -199,5 +201,17 @@ public class RegistroController implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
         alert.showAndWait();
+    }
+
+    private void cargarCarrerasDisponibles() {
+        try (Connection conn = ConexionBD.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery("SELECT id, nombre FROM carreras WHERE habilitado=1")) {
+            while (rs.next()) {
+                comboCarreras.getItems().add(rs.getString("nombre") + " [ID:" + rs.getInt("id") + "]");
+            }
+        } catch (SQLException e) {
+            mostrarAlerta("No se pudo cargar la lista de carreras.", Alert.AlertType.ERROR);
+        }
     }
 }

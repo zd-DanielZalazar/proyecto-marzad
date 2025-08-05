@@ -2,8 +2,7 @@ package com.sga.marzad.controller;
 
 import com.sga.marzad.model.InscripcionMateria;
 import com.sga.marzad.model.MateriaDisponible;
-import com.sga.marzad.viewmodel.InscripcionMateriaViewModel;
-import com.sga.marzad.viewmodel.ResultadoInscripcion;
+import com.sga.marzad.service.InscripcionMateriaService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -19,36 +18,41 @@ public class InscripcionMateriaController {
     @FXML private TableView<InscripcionMateria> tablaInscripciones;
     @FXML private Label lblCarrera;
 
-    private final InscripcionMateriaViewModel viewModel = new InscripcionMateriaViewModel();
+    private final InscripcionMateriaService service = new InscripcionMateriaService();
 
-    private int alumnoId;
-    private int carreraId;
-    private int inscripcionCarreraId;
+    // Estos valores deben setearse al loguear
+    private int alumnoId = 1; // Reemplazalo al loguear
+    private int carreraId = 1; // Reemplazalo según el alumno
+    private int inscripcionCarreraId = 1; // Debe venir de la tabla inscripciones_carrera
 
     @FXML
     public void initialize() {
+        lblCarrera.setText("Analista en Sistemas"); // Cambia por el nombre dinámico de la carrera
         configurarTabla();
         configurarComboBox();
+
+        // Cargar datos al iniciar
+        cargarMateriasDisponibles();
+        cargarInscripcionesAlumno();
+
         btnInscribir.setOnAction(event -> inscribirMateria());
     }
 
-    // Llamado desde MainController para setear el contexto
+    // Permite setear los IDs desde el login o main (mejor para futuro)
     public void setDatosAlumno(int alumnoId, int carreraId, int inscripcionCarreraId, String nombreCarrera) {
         this.alumnoId = alumnoId;
         this.carreraId = carreraId;
         this.inscripcionCarreraId = inscripcionCarreraId;
-        lblCarrera.setText(nombreCarrera);
+        this.lblCarrera.setText(nombreCarrera);
         cargarMateriasDisponibles();
         cargarInscripcionesAlumno();
     }
 
     private void configurarTabla() {
         TableColumn<InscripcionMateria, String> colMateria = new TableColumn<>("Materia");
-        colMateria.setCellValueFactory(data -> {
-            int materiaId = data.getValue().getMateriaId();
-            String nombreMateria = new com.sga.marzad.dao.InscripcionMateriaDAO().obtenerNombreMateriaPorId(materiaId);
-            return new javafx.beans.property.SimpleStringProperty(nombreMateria);
-        });
+        colMateria.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(
+                service.obtenerNombreMateriaPorId(data.getValue().getMateriaId())
+        ));
 
         TableColumn<InscripcionMateria, String> colFecha = new TableColumn<>("Fecha Inscripción");
         colFecha.setCellValueFactory(data -> {
@@ -61,7 +65,6 @@ public class InscripcionMateriaController {
 
         tablaInscripciones.getColumns().setAll(colMateria, colFecha, colEstado);
     }
-
 
     private void configurarComboBox() {
         comboMaterias.setCellFactory(listView -> new ListCell<>() {
@@ -90,7 +93,7 @@ public class InscripcionMateriaController {
 
     private void cargarMateriasDisponibles() {
         try {
-            List<MateriaDisponible> materias = viewModel.getMateriasDisponibles(alumnoId, carreraId);
+            List<MateriaDisponible> materias = service.obtenerMateriasDisponibles(alumnoId, carreraId);
             comboMaterias.setItems(FXCollections.observableArrayList(materias));
             comboMaterias.getSelectionModel().clearSelection();
         } catch (Exception e) {
@@ -100,10 +103,7 @@ public class InscripcionMateriaController {
 
     private void cargarInscripcionesAlumno() {
         try {
-            // Aquí deberías tener un método en el DAO o Service que devuelva las inscripciones para el alumno
-            // Si mantenés el modelo, podrías usar el viejo service, o crearlo en el ViewModel
-            // Aquí uso el viejo InscripcionMateriaDAO por compatibilidad
-            List<InscripcionMateria> inscripciones = new com.sga.marzad.dao.InscripcionMateriaDAO().listarPorAlumno(alumnoId);
+            List<InscripcionMateria> inscripciones = service.obtenerInscripcionesPorAlumno(alumnoId);
             ObservableList<InscripcionMateria> data = FXCollections.observableArrayList(inscripciones);
             tablaInscripciones.setItems(data);
         } catch (Exception e) {
@@ -118,16 +118,18 @@ public class InscripcionMateriaController {
             mostrarEstado("Debe seleccionar una materia.", false);
             return;
         }
-        ResultadoInscripcion resultado = viewModel.inscribir(alumnoId, seleccionada.getId(), inscripcionCarreraId);
-        switch (resultado) {
-            case OK -> {
-                mostrarEstado("Inscripción exitosa.", true);
-                cargarMateriasDisponibles();
-                cargarInscripcionesAlumno();
+        try {
+            // Validación robusta: correlativas y si ya está inscripto
+            if (!service.puedeInscribirse(alumnoId, seleccionada.getId())) {
+                mostrarEstado("No cumple correlativas o ya está inscripto.", false);
+                return;
             }
-            case YA_INSCRIPTO -> mostrarEstado("El alumno ya está inscripto en esta materia.", false);
-            case CORRELATIVA_NO_APROBADA -> mostrarEstado("No cumple con las correlativas requeridas.", false);
-            case ERROR_BD -> mostrarEstado("Error al inscribir. Intente nuevamente.", false);
+            String mensaje = service.inscribirAlumnoAMateria(alumnoId, seleccionada.getId(), inscripcionCarreraId);
+            mostrarEstado(mensaje, mensaje.contains("éxito"));
+            cargarMateriasDisponibles();
+            cargarInscripcionesAlumno();
+        } catch (Exception e) {
+            mostrarEstado("Error al inscribir: " + e.getMessage(), false);
         }
     }
 
