@@ -101,7 +101,6 @@ public class DocenteDAO {
         return -1; // No encontrado
     }
 
-
     // Verifica que el correo sea único (excepto para este docente)
     public static boolean correoDisponible(int idActual, String correo) {
         String sql = "SELECT id FROM docentes WHERE correo = ? AND id <> ?";
@@ -121,14 +120,12 @@ public class DocenteDAO {
     }
 
     // Actualizar contraseña docente (por usuario_id)
-    public static boolean actualizarPassword(int usuarioId, String nuevaPasswordHasheada) {
-        // Asume que el hash se hace en otro lado (por seguridad)
-        String sql = "UPDATE usuarios SET hash_password = ? WHERE id = ?";
-
+    public static boolean actualizarPassword(int usuarioId, String nuevaPassword) {
+        String sql = "UPDATE usuarios SET password = ? WHERE id = ?";
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, nuevaPasswordHasheada);
+            stmt.setString(1, nuevaPassword);
             stmt.setInt(2, usuarioId);
 
             int rows = stmt.executeUpdate();
@@ -140,16 +137,16 @@ public class DocenteDAO {
         }
     }
 
-    // Obtener contraseña hasheada actual (para verificar al cambiar contraseña)
+    // Obtener contraseña actual (texto plano)
     public static String obtenerPasswordActual(int usuarioId) {
-        String sql = "SELECT hash_password FROM usuarios WHERE id = ?";
+        String sql = "SELECT password FROM usuarios WHERE id = ?";
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, usuarioId);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return rs.getString("hash_password");
+                return rs.getString("password");
             }
         } catch (SQLException e) {
             e.printStackTrace();

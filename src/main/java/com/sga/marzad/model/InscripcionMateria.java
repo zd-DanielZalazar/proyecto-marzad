@@ -1,6 +1,9 @@
 package com.sga.marzad.model;
 
+import com.sga.marzad.dao.InscripcionMateriaDAO;
+
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class InscripcionMateria {
     private int id;
@@ -41,6 +44,18 @@ public class InscripcionMateria {
     public void setInscripcionCarreraId(int inscripcionCarreraId) { this.inscripcionCarreraId = inscripcionCarreraId; }
     public void setFechaInsc(LocalDateTime fechaInsc) { this.fechaInsc = fechaInsc; }
     public void setEstado(String estado) { this.estado = estado; }
+
+    // ⚡ Nuevo: para mostrar nombre de materia en la tabla
+    public String getNombreMateria() {
+        return new InscripcionMateriaDAO().obtenerNombreMateriaPorId(materiaId);
+    }
+
+    // ⚡ Nuevo: para formatear fecha en tabla
+    public String getFechaFormateada() {
+        if (fechaInsc == null) return "";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        return fechaInsc.format(formatter);
+    }
 
     @Override
     public String toString() {

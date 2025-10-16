@@ -2,11 +2,11 @@ package com.sga.marzad.controller;
 
 import com.sga.marzad.model.InscripcionMateria;
 import com.sga.marzad.model.MateriaDisponible;
-import com.sga.marzad.service.InscripcionMateriaService;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import com.sga.marzad.dao.InscripcionMateriaDAO;
+import com.sga.marzad.utils.UsuarioSesion;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.util.List;
 
@@ -15,126 +15,108 @@ public class InscripcionMateriaController {
     @FXML private ComboBox<MateriaDisponible> comboMaterias;
     @FXML private Button btnInscribir;
     @FXML private Label lblEstado;
-    @FXML private TableView<InscripcionMateria> tablaInscripciones;
     @FXML private Label lblCarrera;
+    @FXML private TableView<InscripcionMateria> tablaInscripciones;
+    @FXML private TableColumn<InscripcionMateria, String> colMateria;
+    @FXML private TableColumn<InscripcionMateria, String> colFecha;
+    @FXML private TableColumn<InscripcionMateria, String> colEstado;
 
-    private final InscripcionMateriaService service = new InscripcionMateriaService();
-
-    // Estos valores deben setearse al loguear
-    private int alumnoId = 1; // Reemplazalo al loguear
-    private int carreraId = 1; // Reemplazalo según el alumno
-    private int inscripcionCarreraId = 1; // Debe venir de la tabla inscripciones_carrera
+    private final InscripcionMateriaDAO inscDAO = new InscripcionMateriaDAO();
 
     @FXML
     public void initialize() {
-        lblCarrera.setText("Analista en Sistemas"); // Cambia por el nombre dinámico de la carrera
-        configurarTabla();
-        configurarComboBox();
+        // Configuración de tabla
+        colMateria.setCellValueFactory(new PropertyValueFactory<>("nombreMateria"));
+        colFecha.setCellValueFactory(new PropertyValueFactory<>("fechaFormateada"));
+        colEstado.setCellValueFactory(new PropertyValueFactory<>("estado"));
 
-        // Cargar datos al iniciar
-        cargarMateriasDisponibles();
-        cargarInscripcionesAlumno();
-
-        btnInscribir.setOnAction(event -> inscribirMateria());
-    }
-
-    // Permite setear los IDs desde el login o main (mejor para futuro)
-    public void setDatosAlumno(int alumnoId, int carreraId, int inscripcionCarreraId, String nombreCarrera) {
-        this.alumnoId = alumnoId;
-        this.carreraId = carreraId;
-        this.inscripcionCarreraId = inscripcionCarreraId;
-        this.lblCarrera.setText(nombreCarrera);
-        cargarMateriasDisponibles();
-        cargarInscripcionesAlumno();
-    }
-
-    private void configurarTabla() {
-        TableColumn<InscripcionMateria, String> colMateria = new TableColumn<>("Materia");
-        colMateria.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(
-                service.obtenerNombreMateriaPorId(data.getValue().getMateriaId())
-        ));
-
-        TableColumn<InscripcionMateria, String> colFecha = new TableColumn<>("Fecha Inscripción");
-        colFecha.setCellValueFactory(data -> {
-            var fecha = data.getValue().getFechaInsc();
-            return new javafx.beans.property.SimpleStringProperty(fecha != null ? fecha.toString() : "");
-        });
-
-        TableColumn<InscripcionMateria, String> colEstado = new TableColumn<>("Estado");
-        colEstado.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getEstado()));
-
-        tablaInscripciones.getColumns().setAll(colMateria, colFecha, colEstado);
-    }
-
-    private void configurarComboBox() {
-        comboMaterias.setCellFactory(listView -> new ListCell<>() {
-            @Override
-            protected void updateItem(MateriaDisponible item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                } else {
-                    setText(item.getNombre() + " (" + item.getAnio() + "° año, " + item.getCuatrimestre() + "° C)");
-                }
-            }
-        });
-        comboMaterias.setButtonCell(new ListCell<>() {
-            @Override
-            protected void updateItem(MateriaDisponible item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                } else {
-                    setText(item.getNombre() + " (" + item.getAnio() + "° año, " + item.getCuatrimestre() + "° C)");
-                }
-            }
-        });
+        // Cargar carrera activa
+        lblCarrera.setText(UsuarioSesion.getCarreraNombre() != null ? UsuarioSesion.getCarreraNombre() : "Sin carrera activa");
     }
 
     private void cargarMateriasDisponibles() {
-        try {
-            List<MateriaDisponible> materias = service.obtenerMateriasDisponibles(alumnoId, carreraId);
-            comboMaterias.setItems(FXCollections.observableArrayList(materias));
-            comboMaterias.getSelectionModel().clearSelection();
-        } catch (Exception e) {
-            mostrarEstado("Error cargando materias: " + e.getMessage(), false);
+        int alumnoId = UsuarioSesion.getAlumnoId();
+        int carreraId = UsuarioSesion.getCarreraId();
+
+        List<MateriaDisponible> materias = inscDAO.materiasDisponibles(alumnoId, carreraId);
+
+        if (materias.isEmpty()) {
+            mostrarAlerta("No se encontraron materias disponibles para inscribirse.", Alert.AlertType.INFORMATION);
+            comboMaterias.getItems().clear();
+            btnInscribir.setDisable(true);
+        } else {
+            comboMaterias.getItems().setAll(materias);
+        }
+    }
+
+
+    private void mostrarEstadoMateria() {
+        MateriaDisponible seleccionada = comboMaterias.getValue();
+        if (seleccionada == null) return;
+
+        lblEstado.setText("Estado: " + seleccionada.getEstado());
+
+        btnInscribir.setDisable(!"DISPONIBLE".equals(seleccionada.getEstado()));
+    }
+
+    @FXML
+    private void inscribirseEnMateria() {
+        MateriaDisponible seleccionada = comboMaterias.getValue();
+        if (seleccionada == null) return;
+
+        Integer alumnoId = UsuarioSesion.getAlumnoId();
+        Integer inscripcionCarreraId = UsuarioSesion.getInscripcionCarreraId();
+
+        if (alumnoId == null || inscripcionCarreraId == null) {
+            mostrarAlerta("No hay una inscripción activa a carrera para este alumno.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        boolean ok = inscDAO.insertar(new InscripcionMateria(
+                0,
+                alumnoId,
+                seleccionada.getId(),
+                inscripcionCarreraId,
+                null,
+                "ACTIVA"
+        ));
+
+        if (ok) {
+            mostrarAlerta("Inscripción realizada con éxito.", Alert.AlertType.INFORMATION);
+            cargarMateriasDisponibles(); // refrescar combo
+            cargarInscripcionesAlumno(); // refrescar tabla
+        } else {
+            mostrarAlerta("Error al inscribirse.", Alert.AlertType.ERROR);
         }
     }
 
     private void cargarInscripcionesAlumno() {
-        try {
-            List<InscripcionMateria> inscripciones = service.obtenerInscripcionesPorAlumno(alumnoId);
-            ObservableList<InscripcionMateria> data = FXCollections.observableArrayList(inscripciones);
-            tablaInscripciones.setItems(data);
-        } catch (Exception e) {
-            mostrarEstado("Error cargando inscripciones: " + e.getMessage(), false);
-        }
+        Integer alumnoId = UsuarioSesion.getAlumnoId();
+        if (alumnoId == null) return;
+
+        List<InscripcionMateria> inscripciones = inscDAO.listarPorAlumno(alumnoId);
+        tablaInscripciones.getItems().setAll(inscripciones);
     }
 
-    @FXML
-    private void inscribirMateria() {
-        MateriaDisponible seleccionada = comboMaterias.getValue();
-        if (seleccionada == null) {
-            mostrarEstado("Debe seleccionar una materia.", false);
-            return;
-        }
-        try {
-            // Validación robusta: correlativas y si ya está inscripto
-            if (!service.puedeInscribirse(alumnoId, seleccionada.getId())) {
-                mostrarEstado("No cumple correlativas o ya está inscripto.", false);
-                return;
-            }
-            String mensaje = service.inscribirAlumnoAMateria(alumnoId, seleccionada.getId(), inscripcionCarreraId);
-            mostrarEstado(mensaje, mensaje.contains("éxito"));
-            cargarMateriasDisponibles();
-            cargarInscripcionesAlumno();
-        } catch (Exception e) {
-            mostrarEstado("Error al inscribir: " + e.getMessage(), false);
-        }
+    private void mostrarAlerta(String msg, Alert.AlertType tipo) {
+        Alert alert = new Alert(tipo);
+        alert.setTitle("Inscripción a materias");
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
+        alert.showAndWait();
     }
 
-    private void mostrarEstado(String mensaje, boolean exito) {
-        lblEstado.setText(mensaje);
-        lblEstado.setStyle(exito ? "-fx-text-fill: #33cc33;" : "-fx-text-fill: #ff6666;");
+    public void setDatosAlumno(Integer alumnoId, Integer carreraId, Integer inscripcionCarreraId, String carreraNombre) {
+        // Guardar los valores en UsuarioSesion (por si no estaban cargados)
+        UsuarioSesion.setAlumnoId(alumnoId);
+        UsuarioSesion.setCarrera(carreraId, inscripcionCarreraId, carreraNombre);
+
+        // Actualizar label de carrera
+        lblCarrera.setText(carreraNombre != null ? carreraNombre : "Sin carrera activa");
+
+        // Refrescar combo y tabla con los datos de este alumno
+        cargarMateriasDisponibles();
+        cargarInscripcionesAlumno();
     }
+
 }

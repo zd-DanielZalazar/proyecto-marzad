@@ -13,7 +13,7 @@ public class LoginViewModel {
     /** Autentica comparando texto plano */
     public Usuario autenticar(String user, String pass) {
         Usuario u = usuarioDao.findByUsername(user);
-        if (u != null && pass.equals(u.getHashPassword())) {
+        if (u != null && pass.equals(u.getPassword())) {
             return u;
         }
         return null;

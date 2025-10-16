@@ -30,7 +30,7 @@ public class AlumnoDAO {
                         rs.getString("apellido"),
                         rs.getString("dni"),
                         rs.getString("correo"),
-                        rs.getDate("fecha_nac").toLocalDate(),
+                        rs.getDate("fecha_nac") != null ? rs.getDate("fecha_nac").toLocalDate() : null,
                         rs.getString("genero"),
                         rs.getBoolean("habilitado")
                 );
@@ -57,7 +57,7 @@ public class AlumnoDAO {
             ps.setString(3, a.getApellido());
             ps.setString(4, a.getDni());
             ps.setString(5, a.getCorreo());
-            ps.setDate(6, Date.valueOf(a.getFechaNac()));
+            ps.setDate(6, a.getFechaNac() != null ? Date.valueOf(a.getFechaNac()) : null);
             ps.setString(7, a.getGenero());
             ps.setBoolean(8, a.isHabilitado());
 
@@ -73,6 +73,7 @@ public class AlumnoDAO {
         }
         return false;
     }
+
     /** obtiene Id por usuario */
     public int obtenerIdPorUsuarioId(int usuarioId) {
         String sql = "SELECT id FROM alumnos WHERE usuario_id = ?";
@@ -88,7 +89,6 @@ public class AlumnoDAO {
         }
         return -1; // No encontrado
     }
-
 
     /** Actualiza un alumno existente */
     public boolean update(Alumno a) {
@@ -106,7 +106,7 @@ public class AlumnoDAO {
             ps.setString(3, a.getApellido());
             ps.setString(4, a.getDni());
             ps.setString(5, a.getCorreo());
-            ps.setDate(6, Date.valueOf(a.getFechaNac()));
+            ps.setDate(6, a.getFechaNac() != null ? Date.valueOf(a.getFechaNac()) : null);
             ps.setString(7, a.getGenero());
             ps.setBoolean(8, a.isHabilitado());
             ps.setInt(9, a.getId());
@@ -130,7 +130,8 @@ public class AlumnoDAO {
         }
         return false;
     }
-    // Recupera un alumno por usuario_id (estático)
+
+    /** Recupera un alumno por usuario_id */
     public static Alumno buscarPorUsuarioId(int usuarioId) {
         Alumno alumno = null;
         String sql = "SELECT * FROM alumnos WHERE usuario_id = ?";
@@ -157,7 +158,7 @@ public class AlumnoDAO {
         return alumno;
     }
 
-    // Actualiza sólo los campos permitidos del perfil (estático)
+    /** Actualiza sólo los campos permitidos del perfil */
     public static boolean actualizar(int id, String nombre, String apellido, String correo, String genero, LocalDate fechaNac) {
         String sql = "UPDATE alumnos SET nombre=?, apellido=?, correo=?, genero=?, fecha_nac=? WHERE id=?";
         try (Connection c = ConexionBD.getConnection();
@@ -176,16 +177,17 @@ public class AlumnoDAO {
         }
         return false;
     }
-    // Obtiene la contraseña actual del usuario (en texto plano, o hash si usás hash)
+
+    /** Obtiene la contraseña actual del usuario (texto plano) */
     public static String obtenerPasswordActual(int usuarioId) {
-        String sql = "SELECT hash_password FROM usuarios WHERE id = ?";
+        String sql = "SELECT password FROM usuarios WHERE id = ?";
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, usuarioId);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return rs.getString("hash_password");
+                return rs.getString("password");
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -193,9 +195,9 @@ public class AlumnoDAO {
         return null;
     }
 
-    // Actualiza la contraseña del usuario
+    /** Actualiza la contraseña del usuario */
     public static boolean actualizarPassword(int usuarioId, String nuevaPassword) {
-        String sql = "UPDATE usuarios SET hash_password = ? WHERE id = ?";
+        String sql = "UPDATE usuarios SET password = ? WHERE id = ?";
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -210,5 +212,4 @@ public class AlumnoDAO {
             return false;
         }
     }
-
 }

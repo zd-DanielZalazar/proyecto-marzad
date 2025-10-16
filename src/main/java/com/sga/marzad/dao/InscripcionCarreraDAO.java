@@ -19,21 +19,22 @@ public class InscripcionCarreraDAO {
             SELECT ic.id, ic.alumno_id, ic.carrera_id, c.nombre, ic.estado
             FROM inscripciones_carrera ic
             JOIN carreras c ON ic.carrera_id = c.id
-            WHERE ic.alumno_id = ? AND ic.estado = 'ACTIVA'
+            WHERE ic.alumno_id = ? AND ic.estado IN ('APROBADA')
             LIMIT 1
             """;
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, alumnoId);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return new InscripcionCarrera(
-                        rs.getInt("id"),
-                        rs.getInt("alumno_id"),
-                        rs.getInt("carrera_id"),
-                        rs.getString("nombre"),
-                        rs.getString("estado")
-                );
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new InscripcionCarrera(
+                            rs.getInt("id"),
+                            rs.getInt("alumno_id"),
+                            rs.getInt("carrera_id"),
+                            rs.getString("nombre"),
+                            rs.getString("estado")
+                    );
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();

@@ -1,6 +1,10 @@
 package com.sga.marzad.controller;
 
 import com.sga.marzad.Main;
+import com.sga.marzad.dao.AlumnoDAO;
+import com.sga.marzad.dao.DocenteDAO;
+import com.sga.marzad.dao.InscripcionCarreraDAO;
+import com.sga.marzad.model.InscripcionCarrera;
 import com.sga.marzad.model.Usuario;
 import com.sga.marzad.utils.UsuarioSesion;
 import com.sga.marzad.viewmodel.LoginViewModel;
@@ -13,14 +17,17 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import java.io.IOException;
 
+import java.io.IOException;
 
 public class LoginController {
     @FXML private TextField txtUser;
     @FXML private TextField txtPass;
 
     private final LoginViewModel vm = new LoginViewModel();
+    private final AlumnoDAO alumnoDao = new AlumnoDAO();
+    private final DocenteDAO docenteDao = new DocenteDAO();
+    private final InscripcionCarreraDAO inscCarreraDao = new InscripcionCarreraDAO();
 
     @FXML
     private void onLogin(ActionEvent e) {
@@ -30,21 +37,27 @@ public class LoginController {
 
         if (u != null) {
             UsuarioSesion.limpiarSesion();
-            UsuarioSesion.setUserName(u.getUsername());
-            UsuarioSesion.setRol(u.getRol());
-            UsuarioSesion.setUsuarioId(u.getId());
+            UsuarioSesion.setUsuario(u);
 
             if ("ALUMNO".equalsIgnoreCase(u.getRol())) {
-                int alumnoId = vm.obtenerAlumnoIdPorUsuarioId(u.getId());
+                int alumnoId = alumnoDao.obtenerIdPorUsuarioId(u.getId());
                 if (alumnoId == -1) {
-                    new Alert(Alert.AlertType.ERROR, "No se encontró registro de alumno para este usuario.").showAndWait();
+                    mostrarAlerta("No se encontró registro de alumno para este usuario.", Alert.AlertType.ERROR);
                     return;
                 }
                 UsuarioSesion.setAlumnoId(alumnoId);
+
+                // Buscar inscripción activa a carrera
+                InscripcionCarrera insc = inscCarreraDao.obtenerInscripcionActivaPorAlumno(alumnoId);
+                if (insc != null) {
+                    UsuarioSesion.setCarreraId(insc.getCarreraId());
+                    UsuarioSesion.setInscripcionCarreraId(insc.getId());
+                    UsuarioSesion.setCarreraNombre(insc.getNombreCarrera());
+                }
             } else if ("DOCENTE".equalsIgnoreCase(u.getRol())) {
-                int docenteId = vm.obtenerDocenteIdPorUsuarioId(u.getId());
+                int docenteId = docenteDao.obtenerIdPorUsuarioId(u.getId());
                 if (docenteId == -1) {
-                    new Alert(Alert.AlertType.ERROR, "No se encontró registro de docente para este usuario.").showAndWait();
+                    mostrarAlerta("No se encontró registro de docente para este usuario.", Alert.AlertType.ERROR);
                     return;
                 }
                 UsuarioSesion.setDocenteId(docenteId);
@@ -53,8 +66,6 @@ public class LoginController {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/MainView.fxml"));
                 Parent root = loader.load();
-                MainController mainController = loader.getController();
-                mainController.setUsuarioActual(u);
 
                 Stage stage = new Stage();
                 stage.setScene(new Scene(root));
@@ -67,10 +78,10 @@ public class LoginController {
 
             } catch (IOException ex) {
                 ex.printStackTrace();
-                new Alert(Alert.AlertType.ERROR, "Error al abrir la vista principal.").showAndWait();
+                mostrarAlerta("Error al abrir la vista principal.", Alert.AlertType.ERROR);
             }
         } else {
-            new Alert(Alert.AlertType.ERROR, "Credenciales inválidas").showAndWait();
+            mostrarAlerta("Credenciales inválidas.", Alert.AlertType.ERROR);
         }
     }
 
@@ -89,5 +100,12 @@ public class LoginController {
             e.printStackTrace();
         }
     }
-}
 
+    private void mostrarAlerta(String msg, Alert.AlertType tipo) {
+        Alert alert = new Alert(tipo);
+        alert.setTitle("Login");
+        alert.setHeaderText(null);
+        alert.setContentText(msg);
+        alert.showAndWait();
+    }
+}

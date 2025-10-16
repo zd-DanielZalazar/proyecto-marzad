@@ -9,6 +9,7 @@ import java.util.List;
 
 public class CarreraDAO {
 
+    /** Obtiene todas las carreras habilitadas */
     public List<Carrera> obtenerCarrerasHabilitadas() {
         List<Carrera> lista = new ArrayList<>();
         String sql = "SELECT id, nombre, descripcion, habilitado FROM carreras WHERE habilitado = TRUE";
@@ -30,6 +31,7 @@ public class CarreraDAO {
         return lista;
     }
 
+    /** Busca una carrera por su ID */
     public Carrera obtenerCarreraPorId(int id) {
         String sql = "SELECT id, nombre, descripcion, habilitado FROM carreras WHERE id = ?";
         try (Connection conn = ConexionBD.getConnection();
@@ -51,6 +53,7 @@ public class CarreraDAO {
         return null;
     }
 
+    /** Actualiza el nombre y la descripción de una carrera */
     public boolean actualizarCarrera(Carrera carrera) {
         String sql = "UPDATE carreras SET nombre=?, descripcion=? WHERE id=?";
         try (Connection conn = ConexionBD.getConnection();
@@ -65,6 +68,7 @@ public class CarreraDAO {
         }
     }
 
+    /** Deshabilita una carrera */
     public boolean deshabilitarCarrera(int id) {
         String sql = "UPDATE carreras SET habilitado=FALSE WHERE id=?";
         try (Connection conn = ConexionBD.getConnection();
@@ -76,7 +80,8 @@ public class CarreraDAO {
             return false;
         }
     }
-    // Crea una carrera y retorna el ID generado (o -1 si falla)
+
+    /** Crea una nueva carrera y devuelve el ID generado */
     public int crearCarrera(String nombre, String descripcion) {
         String sql = "INSERT INTO carreras (nombre, descripcion, habilitado) VALUES (?, ?, TRUE)";
         try (Connection conn = ConexionBD.getConnection();
@@ -85,14 +90,13 @@ public class CarreraDAO {
             ps.setString(2, descripcion);
             int filas = ps.executeUpdate();
             if (filas > 0) {
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) return rs.getInt(1);
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) return rs.getInt(1);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return -1;
     }
-
-
 }

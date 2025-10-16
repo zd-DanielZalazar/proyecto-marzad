@@ -28,7 +28,7 @@ public class RegistroController implements Initializable {
     // Docente
     @FXML private TextField txtNombreDocente, txtApellidoDocente, txtDniDocente, txtCorreoDocente;
     @FXML private ComboBox<String> comboGeneroDocente;
-    @FXML private DatePicker dpFechaNacDocente; // NUEVO
+    @FXML private DatePicker dpFechaNacDocente;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -113,7 +113,7 @@ public class RegistroController implements Initializable {
                 String legajo = generarLegajo(conn);
 
                 PreparedStatement ps = conn.prepareStatement("""
-                    INSERT INTO docentes (usuario_id, nombre, apellido, legajo, correo, genero, dni, fecha_nacimiento)
+                    INSERT INTO docentes (usuario_id, nombre, apellido, legajo, correo, genero, dni, fecha_nac)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """);
                 ps.setInt(1, usuarioId);
@@ -147,20 +147,33 @@ public class RegistroController implements Initializable {
         return true;
     }
 
-    private int insertarUsuario(Connection conn, String username, String password, String rol) throws SQLException {
+    /** Inserta un usuario genérico en la tabla usuarios */
+    private int insertarUsuario(Connection conn, String username, String password, String rolNombre) throws SQLException {
+        int rolId = obtenerRolId(conn, rolNombre);
+        if (rolId <= 0) throw new SQLException("Rol no encontrado: " + rolNombre);
+
         PreparedStatement ps = conn.prepareStatement("""
-            INSERT INTO usuarios (username, hash_password, rol)
-            VALUES (?, ?, ?)
+            INSERT INTO usuarios (username, password, rol_id, habilitado)
+            VALUES (?, ?, ?, TRUE)
         """, Statement.RETURN_GENERATED_KEYS);
         ps.setString(1, username);
         ps.setString(2, password); // en texto plano
-        ps.setString(3, rol);
+        ps.setInt(3, rolId);
         ps.executeUpdate();
 
         ResultSet rs = ps.getGeneratedKeys();
         if (rs.next()) {
             return rs.getInt(1);
         }
+        return -1;
+    }
+
+    /** Devuelve el id del rol por nombre */
+    private int obtenerRolId(Connection conn, String rolNombre) throws SQLException {
+        PreparedStatement ps = conn.prepareStatement("SELECT id FROM roles WHERE UPPER(nombre)=UPPER(?)");
+        ps.setString(1, rolNombre);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) return rs.getInt(1);
         return -1;
     }
 

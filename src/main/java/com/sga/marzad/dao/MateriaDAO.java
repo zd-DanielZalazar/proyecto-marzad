@@ -9,13 +9,15 @@ import java.util.List;
 
 public class MateriaDAO {
 
-    // Obtener materias habilitadas por carrera
+    /** Obtener materias habilitadas por carrera */
     public List<Materia> obtenerMateriasPorCarrera(int carreraId) {
         List<Materia> lista = new ArrayList<>();
-        String sql = "SELECT m.id, m.plan_id, m.nombre, m.anio, m.cuatrimestre, m.creditos, m.habilitado " +
-                "FROM materias m " +
-                "JOIN planes_estudio p ON m.plan_id = p.id " +
-                "WHERE p.carrera_id = ? AND m.habilitado = TRUE";
+        String sql = """
+            SELECT m.id, m.plan_id, m.nombre, m.anio, m.cuatrimestre, m.creditos, m.habilitado
+              FROM materias m
+              JOIN planes_estudio p ON m.plan_id = p.id
+             WHERE p.carrera_id = ? AND m.habilitado = TRUE
+            """;
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, carreraId);
@@ -39,7 +41,7 @@ public class MateriaDAO {
         return lista;
     }
 
-    // Actualizar materia
+    /** Actualizar materia */
     public boolean actualizarMateria(Materia materia) {
         String sql = "UPDATE materias SET nombre=?, anio=?, cuatrimestre=?, creditos=? WHERE id=?";
         try (Connection conn = ConexionBD.getConnection();
@@ -56,7 +58,7 @@ public class MateriaDAO {
         }
     }
 
-    // Deshabilitar materia (eliminación lógica)
+    /** Deshabilitar materia (eliminación lógica) */
     public boolean deshabilitarMateria(int id) {
         String sql = "UPDATE materias SET habilitado=FALSE WHERE id=?";
         try (Connection conn = ConexionBD.getConnection();
@@ -69,7 +71,7 @@ public class MateriaDAO {
         }
     }
 
-    // Crear nueva materia para una carrera (busca el plan de estudio)
+    /** Crear nueva materia para una carrera (busca el plan de estudio) */
     public Materia crearMateria(String nombre, int carreraId) {
         String obtenerPlan = "SELECT id FROM planes_estudio WHERE carrera_id = ? LIMIT 1";
         String insertMateria = "INSERT INTO materias (plan_id, nombre, anio, cuatrimestre, creditos, habilitado) VALUES (?, ?, 1, 1, 0, TRUE)";
@@ -78,18 +80,21 @@ public class MateriaDAO {
              PreparedStatement psInsert = conn.prepareStatement(insertMateria, Statement.RETURN_GENERATED_KEYS)) {
             // Buscar plan
             psPlan.setInt(1, carreraId);
-            ResultSet rsPlan = psPlan.executeQuery();
-            if (!rsPlan.next()) return null;
-            int planId = rsPlan.getInt("id");
-            // Insertar materia
-            psInsert.setInt(1, planId);
-            psInsert.setString(2, nombre);
-            int filas = psInsert.executeUpdate();
-            if (filas > 0) {
-                ResultSet rs = psInsert.getGeneratedKeys();
-                if (rs.next()) {
-                    int materiaId = rs.getInt(1);
-                    return new Materia(materiaId, planId, nombre, 1, 1, 0, true);
+            try (ResultSet rsPlan = psPlan.executeQuery()) {
+                if (!rsPlan.next()) return null;
+                int planId = rsPlan.getInt("id");
+
+                // Insertar materia
+                psInsert.setInt(1, planId);
+                psInsert.setString(2, nombre);
+                int filas = psInsert.executeUpdate();
+                if (filas > 0) {
+                    try (ResultSet rs = psInsert.getGeneratedKeys()) {
+                        if (rs.next()) {
+                            int materiaId = rs.getInt(1);
+                            return new Materia(materiaId, planId, nombre, 1, 1, 0, true);
+                        }
+                    }
                 }
             }
         } catch (SQLException e) {
@@ -98,13 +103,15 @@ public class MateriaDAO {
         return null;
     }
 
-    // Obtener correlativas de una materia
+    /** Obtener correlativas de una materia */
     public List<Materia> obtenerCorrelativas(int materiaId) {
         List<Materia> lista = new ArrayList<>();
-        String sql = "SELECT m2.id, m2.plan_id, m2.nombre, m2.anio, m2.cuatrimestre, m2.creditos, m2.habilitado " +
-                "FROM correlatividades c " +
-                "JOIN materias m2 ON c.correlativa_id = m2.id " +
-                "WHERE c.materia_id = ?";
+        String sql = """
+            SELECT m2.id, m2.plan_id, m2.nombre, m2.anio, m2.cuatrimestre, m2.creditos, m2.habilitado
+              FROM correlatividades c
+              JOIN materias m2 ON c.correlativa_id = m2.id
+             WHERE c.materia_id = ?
+            """;
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, materiaId);
@@ -128,7 +135,7 @@ public class MateriaDAO {
         return lista;
     }
 
-    // Agregar correlativa
+    /** Agregar correlativa */
     public boolean agregarCorrelativa(int materiaId, int correlativaId) {
         String sql = "INSERT INTO correlatividades (materia_id, correlativa_id) VALUES (?, ?)";
         try (Connection conn = ConexionBD.getConnection();
@@ -146,6 +153,8 @@ public class MateriaDAO {
             return false;
         }
     }
+
+    /** Crear materia completa con datos de plan */
     public int crearMateriaCompleta(String nombre, int planId, int anio, int cuatrimestre, int creditos) {
         String sql = "INSERT INTO materias (plan_id, nombre, anio, cuatrimestre, creditos, habilitado) VALUES (?, ?, ?, ?, ?, TRUE)";
         try (Connection conn = ConexionBD.getConnection();
@@ -157,34 +166,35 @@ public class MateriaDAO {
             ps.setInt(5, creditos);
             int filas = ps.executeUpdate();
             if (filas > 0) {
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) return rs.getInt(1);
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) return rs.getInt(1);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return -1;
     }
-    // Usando carreraId como "plan_id" (si tu tabla lo requiere)
+
+    /** Crear materia usando carreraId como plan_id */
     public int crearMateriaSimple(String nombre, int carreraId, int anio, int cuatrimestre, int creditos) {
         String sql = "INSERT INTO materias (plan_id, nombre, anio, cuatrimestre, creditos, habilitado) VALUES (?, ?, ?, ?, ?, TRUE)";
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setInt(1, carreraId); // Usar carreraId como plan_id (por compatibilidad)
+            ps.setInt(1, carreraId); // Se usa carreraId como plan_id (compatibilidad)
             ps.setString(2, nombre);
             ps.setInt(3, anio);
             ps.setInt(4, cuatrimestre);
             ps.setInt(5, creditos);
             int filas = ps.executeUpdate();
             if (filas > 0) {
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) return rs.getInt(1);
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) return rs.getInt(1);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return -1;
     }
-
-
 }

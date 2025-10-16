@@ -15,9 +15,10 @@ public class UsuarioDAO {
      */
     public Usuario findByUsername(String username) {
         String sql = """
-            SELECT id, username, hash_password, rol
-              FROM usuarios
-             WHERE username = ?
+            SELECT u.id, u.username, u.password, r.nombre AS rol
+              FROM usuarios u
+              JOIN roles r ON u.rol_id = r.id
+             WHERE u.username = ?
             """;
         try (Connection c = ConexionBD.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
@@ -27,7 +28,7 @@ public class UsuarioDAO {
                     return new Usuario(
                             rs.getInt("id"),
                             rs.getString("username"),
-                            rs.getString("hash_password"),
+                            rs.getString("password"),
                             rs.getString("rol")
                     );
                 }
@@ -37,5 +38,41 @@ public class UsuarioDAO {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * Valida si la password ingresada coincide con la guardada.
+     */
+    public boolean validarPassword(int usuarioId, String plainPassword) {
+        String sql = "SELECT 1 FROM usuarios WHERE id = ? AND password = ?";
+        try (Connection c = ConexionBD.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, usuarioId);
+            ps.setString(2, plainPassword);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            System.err.println("Error en UsuarioDAO.validarPassword:");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Actualiza la password de un usuario.
+     */
+    public boolean actualizarPassword(int usuarioId, String nuevaPlain) {
+        String sql = "UPDATE usuarios SET password = ? WHERE id = ?";
+        try (Connection c = ConexionBD.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, nuevaPlain);
+            ps.setInt(2, usuarioId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error en UsuarioDAO.actualizarPassword:");
+            e.printStackTrace();
+            return false;
+        }
     }
 }
