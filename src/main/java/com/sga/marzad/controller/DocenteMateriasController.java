@@ -1,93 +1,106 @@
 package com.sga.marzad.controller;
 
 import com.sga.marzad.model.AlumnoNotasDocente;
+import com.sga.marzad.model.AsistenciaAlumnoRow;
 import com.sga.marzad.model.Materia;
 import com.sga.marzad.service.DocenteService;
+import com.sga.marzad.utils.UsuarioSesion;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.converter.DoubleStringConverter;
 
+import java.time.LocalDate;
+
 public class DocenteMateriasController {
 
-    @FXML
-    private ComboBox<Materia> comboMaterias;
+    @FXML private ComboBox<Materia> comboMaterias;
 
-    @FXML
-    private TableView<AlumnoNotasDocente> tablaAlumnos;
+    @FXML private TableView<AlumnoNotasDocente> tablaAlumnos;
+    @FXML private TableColumn<AlumnoNotasDocente, String> colNombre;
+    @FXML private TableColumn<AlumnoNotasDocente, String> colDni;
+    @FXML private TableColumn<AlumnoNotasDocente, String> colCorreo;
+    @FXML private TableColumn<AlumnoNotasDocente, String> colEstado;
+    @FXML private TableColumn<AlumnoNotasDocente, Double> colParcial1;
+    @FXML private TableColumn<AlumnoNotasDocente, Double> colRecup1;
+    @FXML private TableColumn<AlumnoNotasDocente, Double> colParcial2;
+    @FXML private TableColumn<AlumnoNotasDocente, Double> colRecup2;
+    @FXML private TableColumn<AlumnoNotasDocente, Double> colFinal;
+    @FXML private TableColumn<AlumnoNotasDocente, Void> colAcciones;
 
-    @FXML
-    private TableColumn<AlumnoNotasDocente, String> colNombre;
-    @FXML
-    private TableColumn<AlumnoNotasDocente, String> colDni;
-    @FXML
-    private TableColumn<AlumnoNotasDocente, String> colCorreo;
-    @FXML
-    private TableColumn<AlumnoNotasDocente, String> colEstado;
+    @FXML private Label lblAlumnoNombre;
+    @FXML private Label lblAlumnoDni;
+    @FXML private Label lblAlumnoEstado;
 
-    @FXML
-    private TableColumn<AlumnoNotasDocente, Double> colParcial1;
-    @FXML
-    private TableColumn<AlumnoNotasDocente, Double> colRecup1;
-    @FXML
-    private TableColumn<AlumnoNotasDocente, Double> colParcial2;
-    @FXML
-    private TableColumn<AlumnoNotasDocente, Double> colRecup2;
-    @FXML
-    private TableColumn<AlumnoNotasDocente, Double> colFinal;
-
-    @FXML
-    private TableColumn<AlumnoNotasDocente, Void> colAcciones;
+    @FXML private TableView<AsistenciaAlumnoRow> tablaAsistencias;
+    @FXML private TableColumn<AsistenciaAlumnoRow, String> colAsistAlumno;
+    @FXML private TableColumn<AsistenciaAlumnoRow, String> colAsistDni;
+    @FXML private TableColumn<AsistenciaAlumnoRow, Boolean> colAsistPresente;
+    @FXML private DatePicker dateAsistencia;
+    @FXML private CheckBox chkMarcarTodos;
 
     private final DocenteService service = new DocenteService();
-
-    private final int docenteId = 1; // Reemplaza por el ID real de sesión
+    private int docenteId = 0;
 
     @FXML
     public void initialize() {
+        if (UsuarioSesion.getDocenteId() != null) {
+            docenteId = UsuarioSesion.getDocenteId();
+        }
+        configurarTablasNotas();
+        configurarTablaAsistencias();
         cargarMateriasDocente();
-        configurarTabla();
-        comboMaterias.setOnAction(e -> cargarAlumnosInscriptos());
+
+        comboMaterias.setOnAction(e -> cargarDatosMateria());
+        tablaAlumnos.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> actualizarDetalleAlumno(newSel));
+        dateAsistencia.setValue(LocalDate.now());
+        dateAsistencia.valueProperty().addListener((obs, oldVal, newVal) -> cargarAsistenciasDiarias());
     }
 
-    private void cargarMateriasDocente() {
-        var materias = service.obtenerMateriasPorDocente(docenteId);
-        comboMaterias.setItems(FXCollections.observableArrayList(materias));
-        comboMaterias.getSelectionModel().clearSelection();
-    }
-
-    private void configurarTabla() {
+    private void configurarTablasNotas() {
         colNombre.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getNombreCompleto()));
         colDni.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getDni()));
         colCorreo.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getCorreo()));
         colEstado.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getEstadoInscripcion()));
 
-        setEditableDoubleCol(colParcial1, AlumnoNotasDocente::parcial1Property, "Primer Parcial");
-        setEditableDoubleCol(colRecup1, AlumnoNotasDocente::recup1Property, "Recup. 1");
-        setEditableDoubleCol(colParcial2, AlumnoNotasDocente::parcial2Property, "Segundo Parcial");
-        setEditableDoubleCol(colRecup2, AlumnoNotasDocente::recup2Property, "Recup. 2");
-        setEditableDoubleCol(colFinal, AlumnoNotasDocente::finalProperty, "Final/Promo");
+        setEditableDoubleCol(colParcial1, AlumnoNotasDocente::parcial1Property, "PARCIAL_1");
+        setEditableDoubleCol(colRecup1, AlumnoNotasDocente::recup1Property, "RECUP_1");
+        setEditableDoubleCol(colParcial2, AlumnoNotasDocente::parcial2Property, "PARCIAL_2");
+        setEditableDoubleCol(colRecup2, AlumnoNotasDocente::recup2Property, "RECUP_2");
+        setEditableDoubleCol(colFinal, AlumnoNotasDocente::finalProperty, "FINAL");
 
         colAcciones.setCellFactory(param -> new TableCell<>() {
-            private final Button btnBorrar = new Button("Borrar Notas");
-
+            private final Button btnBorrar = new Button("Borrar notas");
             {
+                btnBorrar.getStyleClass().add("btn-danger");
                 btnBorrar.setOnAction(event -> {
                     AlumnoNotasDocente alumno = getTableView().getItems().get(getIndex());
-                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "¿Seguro que desea borrar todas las notas de este alumno?", ButtonType.YES, ButtonType.NO);
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Seguro que desea borrar todas las notas de este alumno?", ButtonType.YES, ButtonType.NO);
                     alert.setHeaderText(null);
                     alert.showAndWait().ifPresent(resp -> {
                         if (resp == ButtonType.YES) {
-                            service.eliminarTodasLasNotas(alumno.getAlumnoId(), getMateriaSeleccionadaId());
+                            service.eliminarTodasLasNotas(alumno.getInscripcionId(), docenteId);
                             cargarAlumnosInscriptos();
                         }
                     });
                 });
             }
+
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
@@ -96,6 +109,30 @@ public class DocenteMateriasController {
         });
 
         tablaAlumnos.setEditable(true);
+        tablaAlumnos.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+    }
+
+    private void configurarTablaAsistencias() {
+        colAsistAlumno.setCellValueFactory(data -> data.getValue().nombreCompletoProperty());
+        colAsistDni.setCellValueFactory(data -> data.getValue().dniProperty());
+        colAsistPresente.setCellValueFactory(data -> data.getValue().presenteProperty());
+        colAsistPresente.setCellFactory(CheckBoxTableCell.forTableColumn(colAsistPresente));
+        tablaAsistencias.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        chkMarcarTodos.setSelected(false);
+    }
+
+    private void cargarMateriasDocente() {
+        var materias = service.obtenerMateriasPorDocente(docenteId);
+        comboMaterias.setItems(FXCollections.observableArrayList(materias));
+        comboMaterias.getSelectionModel().clearSelection();
+        tablaAlumnos.getItems().clear();
+        tablaAsistencias.getItems().clear();
+    }
+
+    private void cargarDatosMateria() {
+        cargarAlumnosInscriptos();
+        dateAsistencia.setValue(LocalDate.now());
+        cargarAsistenciasDiarias();
     }
 
     private void setEditableDoubleCol(
@@ -103,19 +140,7 @@ public class DocenteMateriasController {
             java.util.function.Function<AlumnoNotasDocente, DoubleProperty> propertyGetter,
             String tipoNota) {
         col.setCellValueFactory(cellData -> propertyGetter.apply(cellData.getValue()).asObject());
-
-        // Edición inline con estilo
-        col.setCellFactory(tc -> new TextFieldTableCell<AlumnoNotasDocente, Double>(new DoubleStringConverter()) {
-            @Override
-            public void updateItem(Double value, boolean empty) {
-                super.updateItem(value, empty);
-                if (!empty) {
-                    setStyle("-fx-text-fill: white; -fx-font-size: 16px; -fx-background-color: #225;");
-                } else {
-                    setStyle("");
-                }
-            }
-        });
+        col.setCellFactory(tc -> new TextFieldTableCell<>(new DoubleStringConverter()));
 
         col.setOnEditCommit(event -> {
             AlumnoNotasDocente alumno = event.getRowValue();
@@ -127,7 +152,7 @@ public class DocenteMateriasController {
                 return;
             }
 
-            service.guardarNota(alumno.getAlumnoId(), getMateriaSeleccionadaId(), tipoNota, nuevaNota);
+            service.guardarNota(alumno.getInscripcionId(), docenteId, tipoNota, nuevaNota);
             cargarAlumnosInscriptos();
         });
     }
@@ -136,17 +161,77 @@ public class DocenteMateriasController {
         Materia materia = comboMaterias.getValue();
         if (materia == null) {
             tablaAlumnos.setItems(FXCollections.observableArrayList());
+            lblAlumnoNombre.setText("-");
+            lblAlumnoDni.setText("-");
+            lblAlumnoEstado.setText("-");
             return;
         }
         ObservableList<AlumnoNotasDocente> lista = FXCollections.observableArrayList(
-                service.obtenerAlumnosNotasPorMateria(materia.getId())
+                service.obtenerAlumnosNotasPorMateria(docenteId, materia.getId())
         );
         tablaAlumnos.setItems(lista);
+        var seleccion = tablaAlumnos.getSelectionModel().getSelectedItem();
+        if (seleccion != null && lista.contains(seleccion)) {
+            tablaAlumnos.getSelectionModel().select(seleccion);
+            actualizarDetalleAlumno(seleccion);
+        } else if (!lista.isEmpty()) {
+            tablaAlumnos.getSelectionModel().selectFirst();
+            actualizarDetalleAlumno(lista.get(0));
+        } else {
+            actualizarDetalleAlumno(null);
+        }
     }
 
-    private int getMateriaSeleccionadaId() {
-        Materia m = comboMaterias.getValue();
-        return m != null ? m.getId() : 0;
+    private void actualizarDetalleAlumno(AlumnoNotasDocente alumno) {
+        if (alumno == null) {
+            lblAlumnoNombre.setText("Sin selección");
+            lblAlumnoDni.setText("-");
+            lblAlumnoEstado.setText("-");
+        } else {
+            lblAlumnoNombre.setText(alumno.getNombreCompleto());
+            lblAlumnoDni.setText(alumno.getDni());
+            lblAlumnoEstado.setText(alumno.getEstadoInscripcion());
+        }
+    }
+
+    private void cargarAsistenciasDiarias() {
+        Materia materia = comboMaterias.getValue();
+        LocalDate fecha = dateAsistencia.getValue();
+        if (materia == null || fecha == null) {
+            tablaAsistencias.getItems().clear();
+            return;
+        }
+        tablaAsistencias.setItems(FXCollections.observableArrayList(
+                service.obtenerAsistenciaDiaria(docenteId, materia.getId(), fecha)
+        ));
+        chkMarcarTodos.setSelected(false);
+    }
+
+    @FXML
+    private void onGuardarAsistencia() {
+        LocalDate fecha = dateAsistencia.getValue();
+        if (fecha == null) {
+            mostrarAlerta("Seleccione la fecha de asistencia.");
+            return;
+        }
+        for (AsistenciaAlumnoRow fila : tablaAsistencias.getItems()) {
+            service.guardarAsistencia(fila.getInscripcionId(), docenteId, fecha, fila.isPresente());
+        }
+        Alert ok = new Alert(Alert.AlertType.INFORMATION, "Asistencia guardada correctamente.");
+        ok.setHeaderText(null);
+        ok.showAndWait();
+    }
+
+    @FXML
+    private void onLimpiarAsistencia() {
+        tablaAsistencias.getItems().forEach(row -> row.setPresente(false));
+        chkMarcarTodos.setSelected(false);
+    }
+
+    @FXML
+    private void onMarcarTodos() {
+        boolean marcado = chkMarcarTodos.isSelected();
+        tablaAsistencias.getItems().forEach(row -> row.setPresente(marcado));
     }
 
     private void mostrarAlerta(String msg) {

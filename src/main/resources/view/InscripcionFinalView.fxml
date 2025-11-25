@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.sga.marzad.controller.InscripcionFinalController"
+            prefWidth="900" prefHeight="560"
+            styleClass="view-background">
+
+    <top>
+        <VBox spacing="8" alignment="CENTER" styleClass="panel-header">
+            <Label text="Inscripción a Exámenes Finales" styleClass="label-title"/>
+            <Label fx:id="lblCarrera" styleClass="label-subtitle"/>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox spacing="18" alignment="TOP_CENTER" styleClass="panel-content">
+
+            <Label text="Mesas disponibles" styleClass="label-section"/>
+            <TableView fx:id="tablaFinales" prefHeight="200" styleClass="table-view">
+                <columns>
+                    <TableColumn fx:id="colMateria" text="Materia" prefWidth="220"/>
+                    <TableColumn fx:id="colFecha" text="Fecha" prefWidth="160"/>
+                    <TableColumn fx:id="colAula" text="Aula" prefWidth="100"/>
+                    <TableColumn fx:id="colCupos" text="Cupos libres" prefWidth="120"/>
+                    <TableColumn fx:id="colAccionFinal" text="Acción" prefWidth="140"/>
+                </columns>
+                <placeholder>
+                    <Label text="No hay finales publicados para tu carrera"/>
+                </placeholder>
+            </TableView>
+
+            <Label text="Mis inscripciones" styleClass="label-section"/>
+            <TableView fx:id="tablaMisFinales" prefHeight="180" styleClass="table-view">
+                <columns>
+                    <TableColumn fx:id="colMiMateria" text="Materia" prefWidth="220"/>
+                    <TableColumn fx:id="colMiFechaExamen" text="Fecha del examen" prefWidth="160"/>
+                    <TableColumn fx:id="colMiFechaInsc" text="Fecha inscripción" prefWidth="160"/>
+                    <TableColumn fx:id="colMiEstado" text="Estado" prefWidth="120"/>
+                    <TableColumn fx:id="colMiAccion" text="Acción" prefWidth="120"/>
+                </columns>
+                <placeholder>
+                    <Label text="Todavía no estás inscripto en finales"/>
+                </placeholder>
+            </TableView>
+
+        </VBox>
+    </center>
+</BorderPane>

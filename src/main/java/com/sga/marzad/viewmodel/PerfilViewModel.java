@@ -5,6 +5,7 @@ import com.sga.marzad.model.Alumno;
 import com.sga.marzad.model.Docente;
 import com.sga.marzad.dao.AlumnoDAO;
 import com.sga.marzad.dao.DocenteDAO;
+import com.sga.marzad.service.NotificacionService;
 import com.sga.marzad.service.PerfilService;
 
 import java.time.LocalDate;
@@ -83,6 +84,11 @@ public class PerfilViewModel {
             exito = AlumnoDAO.actualizarPassword(usuarioId, nuevaPassword);
         } else if (isDocente()) {
             exito = DocenteDAO.actualizarPassword(usuarioId, nuevaPassword);
+        }
+
+        if (exito) {
+            String correo = isAlumno() ? alumnoActual.getCorreo() : docenteActual.getCorreo();
+            NotificacionService.registrarCambioPassword(usuarioId, correo != null ? correo : usuarioActual.getUsername());
         }
 
         return exito;

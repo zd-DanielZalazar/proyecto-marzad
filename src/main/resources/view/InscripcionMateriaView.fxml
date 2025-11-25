@@ -5,42 +5,57 @@
 <StackPane xmlns:fx="http://javafx.com/fxml"
            fx:controller="com.sga.marzad.controller.InscripcionMateriaController"
            prefWidth="900" prefHeight="600"
-           styleClass="main-bg">
+           style="-fx-background-color: linear-gradient(to bottom, #1E4370, #0E294B);
+                  -fx-padding: 30; -fx-alignment: center;">
 
-    <VBox spacing="26" alignment="TOP_CENTER" prefWidth="800" prefHeight="550"
-          style="-fx-background-color: #153960; -fx-background-radius: 18;">
-        <Label text="Inscripción a Materias" style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+    <VBox spacing="24" alignment="TOP_CENTER"
+          prefWidth="820" prefHeight="540"
+          styleClass="inscripcion-panel">
 
-        <!-- Carrera -->
-        <HBox alignment="CENTER" spacing="8">
-            <Label text="Carrera:" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;"/>
-            <Label fx:id="lblCarrera" style="-fx-font-size: 18px; -fx-text-fill: white;"/>
+        <!-- 🏷️ Título -->
+        <Label text="Inscripción a Materias"
+               styleClass="label-title"/>
+
+        <!-- 🎓 Carrera -->
+        <HBox alignment="CENTER" spacing="10">
+            <Label text="Carrera:"
+                   styleClass="label-subtitle"/>
+            <Label fx:id="lblCarrera"
+                   style="-fx-font-size: 18px; -fx-text-fill: #12e0c7; -fx-font-weight: bold;"/>
         </HBox>
 
-        <!-- Materia -->
-        <VBox alignment="CENTER" spacing="4">
-            <Label text="Materia" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;"/>
-            <HBox alignment="CENTER" spacing="8">
-                <ComboBox fx:id="comboMaterias" prefWidth="360"/>
-                <Button fx:id="btnInscribir" text="Inscribirse"
-                        style="-fx-background-color: #12e0c7; -fx-font-size: 16px;"/>
+        <!-- 📘 Selección de materia -->
+        <VBox alignment="CENTER" spacing="10">
+            <Label text="Seleccionar materia disponible"
+                   styleClass="label-subtitle"/>
+            <HBox alignment="CENTER" spacing="10">
+                <ComboBox fx:id="comboMaterias"
+                          prefWidth="360"
+                          styleClass="combo-box"/>
+                <Button fx:id="btnInscribir"
+                        text="Inscribirse"
+                        styleClass="btn-primary"/>
             </HBox>
         </VBox>
 
-        <Label fx:id="lblEstado" style="-fx-text-fill: white; -fx-font-size: 14px;"/>
+        <!-- ℹ️ Estado de la materia -->
+        <Label fx:id="lblEstado"
+               style="-fx-text-fill: #f4f4f4; -fx-font-size: 15px; -fx-font-style: italic;"/>
 
-        <!-- Tabla de inscripciones -->
+        <!-- 📋 Tabla de inscripciones -->
         <TableView fx:id="tablaInscripciones"
-                   prefHeight="320"
-                   prefWidth="760"
-                   style="-fx-background-color: transparent;">
+                   prefHeight="330"
+                   prefWidth="780"
+                   styleClass="table-view">
             <columns>
-                <TableColumn fx:id="colMateria" text="Materia" prefWidth="210"/>
+                <TableColumn fx:id="colMateria" text="Materia" prefWidth="250"/>
                 <TableColumn fx:id="colFecha" text="Fecha Inscripción" prefWidth="180"/>
-                <TableColumn fx:id="colEstado" text="Estado" prefWidth="100"/>
+                <TableColumn fx:id="colEstado" text="Estado" prefWidth="110"/>
+                <TableColumn fx:id="colAcciones" text="Acciones" prefWidth="140"/>
             </columns>
             <placeholder>
-                <Label text="Aún no tiene inscripciones" style="-fx-text-fill: #cccccc; -fx-font-size: 16px;"/>
+                <Label text="Aún no tiene inscripciones"
+                       style="-fx-text-fill: #cccccc; -fx-font-size: 16px;"/>
             </placeholder>
         </TableView>
 

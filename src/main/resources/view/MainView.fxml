@@ -10,7 +10,7 @@
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.sga.marzad.controller.MainController"
             prefWidth="1024" prefHeight="768"
-            style="-fx-background-color: #1e4370;">
+            styleClass="view-background">
 
     <!-- HEADER -->
     <top>
@@ -51,8 +51,7 @@
 
             <!-- MENUBAR CON FONDO MÁS CLARO -->
             <MenuBar fx:id="menuBar"
-            style="-fx-background-color: #E74483;"
-            styleClass="menu-bar"/>
+                     styleClass="menu-bar"/>
 
         </VBox>
     </top>
@@ -60,15 +59,15 @@
 
     <!-- CENTRO -->
     <center>
-        <VBox spacing="20" alignment="TOP_CENTER" style="-fx-padding: 40 40;" BorderPane.alignment="CENTER">
+        <VBox spacing="20" alignment="TOP_CENTER" styleClass="panel-content" BorderPane.alignment="CENTER">
 
             <!-- Mensaje de bienvenida -->
             <Label text="¡Bienvenido al Sistema de Gestión Académica!"
-                   style="-fx-font-size: 26px; -fx-text-fill: white; -fx-font-weight: bold;"/>
+                   style="-fx-font-size: 26px; -fx-text-fill: #123e6c; -fx-font-weight: bold;"/>
 
             <!-- Descripción -->
            <TextFlow maxWidth="800">
-               <Text style="-fx-font-size: 16px; -fx-fill: #FFC845; text-center">
+               <Text style="-fx-font-size: 16px; -fx-fill: #2d3a4b;">
 
 
                    Esta es una plataforma digital vanguardista para optimizar la experiencia educativa. Este sistema integral de gestión centraliza, automatiza y simplifica procesos académicos y administrativos, beneficiando a estudiantes, docentes y personal.
@@ -81,7 +80,7 @@
                </Text>
                <Text text="&#10;&#10;&#10;" />
 
-               <Text style="-fx-font-size: 16px; -fx-fill: #FFC845; -fx-font-weight: bold;">
+               <Text style="-fx-font-size: 16px; -fx-fill: #2d3a4b; -fx-font-weight: bold;">
 
                    Importante: Sinergia Académica incluye módulos de análisis de datos sobre rendimiento académico y eficiencia de procesos. Esta información es crucial para la toma de decisiones estratégicas, permitiendo a la universidad adaptarse proactivamente y mantener la excelencia. Su implementación reafirma el compromiso de la UNMDP con la innovación y la calidad educativa.
                </Text>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.sga.marzad.controller.AnaliticoParcialController"
+            prefWidth="820" prefHeight="520"
+            styleClass="view-background">
+    <top>
+        <VBox spacing="4" alignment="CENTER" styleClass="panel-header">
+            <Label text="Analítico Parcial" styleClass="label-title"/>
+            <Label fx:id="lblAlumno" styleClass="label-subtitle"/>
+            <Label fx:id="lblCarrera" styleClass="label-subtitle-secondary"/>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox spacing="10" styleClass="panel-content">
+            <Label fx:id="lblPromedio" styleClass="label-section"/>
+            <TableView fx:id="tablaAnalitico" prefHeight="420" styleClass="table-view">
+                <columns>
+                    <TableColumn fx:id="colMateria" text="Materia" prefWidth="220"/>
+                    <TableColumn fx:id="colAnio" text="Año" prefWidth="70"/>
+                    <TableColumn fx:id="colCuatrimestre" text="Cuatr." prefWidth="70"/>
+                    <TableColumn fx:id="colNota" text="Nota" prefWidth="70"/>
+                    <TableColumn fx:id="colCondicion" text="Condición" prefWidth="120"/>
+                    <TableColumn fx:id="colFecha" text="Fecha último movimiento" prefWidth="180"/>
+                </columns>
+                <placeholder>
+                    <Label text="Sin movimientos académicos"/>
+                </placeholder>
+            </TableView>
+        </VBox>
+    </center>
+</BorderPane>

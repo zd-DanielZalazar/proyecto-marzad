@@ -4,37 +4,75 @@
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.sga.marzad.controller.DocenteMateriasController"
-            prefWidth="900" prefHeight="600"
-            styleClass="main-bg">
+            prefWidth="980" prefHeight="640"
+            styleClass="view-background">
 
     <top>
-        <VBox spacing="18" alignment="CENTER">
-            <Label text="Panel Docente"
-                   style="-fx-font-size: 32px; -fx-font-weight: bold; -fx-text-fill: white;"/>
-            <Label text="Materias a cargo"
-                   style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+        <VBox spacing="6" alignment="CENTER" styleClass="panel-header">
+            <Label text="Panel Docente" styleClass="label-title"/>
+            <Label text="Gestión de materias, notas y asistencia" styleClass="label-subtitle"/>
         </VBox>
     </top>
 
     <center>
-        <VBox spacing="18" alignment="TOP_CENTER">
-            <Label text="Seleccione una materia" style="-fx-font-size: 18px; -fx-text-fill: white;"/>
-            <ComboBox fx:id="comboMaterias" prefWidth="450"/>
-            <TableView fx:id="tablaAlumnos" editable="true" prefHeight="400" prefWidth="860"
-                       style="-fx-background-color: transparent;">
-                <columns>
-                    <TableColumn fx:id="colNombre" text="Nombre y Apellido" prefWidth="180"/>
-                    <TableColumn fx:id="colDni" text="DNI" prefWidth="80"/>
-                    <TableColumn fx:id="colCorreo" text="Correo" prefWidth="140"/>
-                    <TableColumn fx:id="colEstado" text="Estado" prefWidth="80"/>
-                    <TableColumn fx:id="colParcial1" text="Primer Parcial" prefWidth="80" editable="true"/>
-                    <TableColumn fx:id="colRecup1" text="Recup. 1" prefWidth="80" editable="true"/>
-                    <TableColumn fx:id="colParcial2" text="Segundo Parcial" prefWidth="80" editable="true"/>
-                    <TableColumn fx:id="colRecup2" text="Recup. 2" prefWidth="80" editable="true"/>
-                    <TableColumn fx:id="colFinal" text="Final/Promo" prefWidth="80" editable="true"/>
-                    <TableColumn fx:id="colAcciones" text="Acción" prefWidth="60"/>
-                </columns>
-            </TableView>
+        <VBox spacing="16" alignment="TOP_CENTER" styleClass="panel-content">
+            <Label text="Seleccione una materia" styleClass="label-section"/>
+            <ComboBox fx:id="comboMaterias" prefWidth="420"/>
+
+            <TabPane prefWidth="900">
+                <tabs>
+                    <Tab text="Calificaciones" closable="false">
+                        <HBox spacing="18" alignment="TOP_CENTER">
+                            <TableView fx:id="tablaAlumnos" editable="true" prefHeight="360" prefWidth="620">
+                                <columns>
+                                    <TableColumn fx:id="colNombre" text="Nombre y Apellido"/>
+                                    <TableColumn fx:id="colDni" text="DNI"/>
+                                    <TableColumn fx:id="colCorreo" text="Correo"/>
+                                    <TableColumn fx:id="colEstado" text="Estado"/>
+                                    <TableColumn fx:id="colParcial1" text="Primer Parcial" editable="true"/>
+                                    <TableColumn fx:id="colRecup1" text="Recup. 1" editable="true"/>
+                                    <TableColumn fx:id="colParcial2" text="Segundo Parcial" editable="true"/>
+                                    <TableColumn fx:id="colRecup2" text="Recup. 2" editable="true"/>
+                                    <TableColumn fx:id="colFinal" text="Final/Promo" editable="true"/>
+                                    <TableColumn fx:id="colAcciones" text="Acción"/>
+                                </columns>
+                            </TableView>
+                            <VBox spacing="10" alignment="TOP_LEFT" prefWidth="220" styleClass="panel">
+                                <Label text="Alumno seleccionado" styleClass="label-section"/>
+                                <Label text="Nombre:" styleClass="label-field"/>
+                                <Label fx:id="lblAlumnoNombre" text="-" style="-fx-font-weight: bold;"/>
+                                <Label text="DNI:" styleClass="label-field"/>
+                                <Label fx:id="lblAlumnoDni" text="-"/>
+                                <Label text="Estado:" styleClass="label-field"/>
+                                <Label fx:id="lblAlumnoEstado" text="-"/>
+                                <Label text="Editá las notas directamente en la tabla. Usa Enter para confirmar cada cambio."
+                                       wrapText="true" style="-fx-text-fill: #435362;"/>
+                            </VBox>
+                        </HBox>
+                    </Tab>
+                    <Tab text="Asistencias" closable="false">
+                        <VBox spacing="12" alignment="TOP_CENTER">
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Label text="Fecha:" styleClass="label-field"/>
+                                <DatePicker fx:id="dateAsistencia"/>
+                                <CheckBox fx:id="chkMarcarTodos" text="Marcar todos presentes" onAction="#onMarcarTodos"/>
+                                <Button text="Guardar asistencia" onAction="#onGuardarAsistencia" styleClass="btn-primary"/>
+                                <Button text="Limpiar" onAction="#onLimpiarAsistencia" styleClass="btn-danger"/>
+                            </HBox>
+                            <TableView fx:id="tablaAsistencias" prefHeight="260">
+                                <columns>
+                                    <TableColumn fx:id="colAsistAlumno" text="Alumno"/>
+                                    <TableColumn fx:id="colAsistDni" text="DNI"/>
+                                    <TableColumn fx:id="colAsistPresente" text="Presente"/>
+                                </columns>
+                                <placeholder>
+                                    <Label text="Seleccione materia y fecha para cargar asistencias"/>
+                                </placeholder>
+                            </TableView>
+                        </VBox>
+                    </Tab>
+                </tabs>
+            </TabPane>
         </VBox>
     </center>
 </BorderPane>

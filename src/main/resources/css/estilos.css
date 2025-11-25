@@ -1,217 +1,161 @@
-/* --------- Fondo y paneles --------- */
-.root, .main-bg {
-    -fx-background-color: #1e4370;
+/* Estilos base claros */
+.root,
+.main-bg,
+.view-background {
+    -fx-background-color: #f5f7fb;
+    -fx-padding: 20;
 }
 
-/* Paneles blancos con sombra */
-.panel {
-    -fx-background-color: transparent;
-    -fx-background-radius: 8px;
-    -fx-padding: 16 18 16 18;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.07), 10, 0.1, 0, 3);
+.panel,
+.inscripcion-panel,
+.panel-content {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 12px;
+    -fx-padding: 18;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12, 0.1, 0, 3);
 }
 
-/* --------- Titulos y textos --------- */
+.panel-header {
+    -fx-padding: 12;
+}
+
 .label-title {
-    -fx-font-size: 24px;
+    -fx-font-size: 26px;
     -fx-font-weight: bold;
-    -fx-text-fill: #00B2A9;
-    -fx-padding: 0 0 10 0;
+    -fx-text-fill: #123e6c;
 }
 
-.label-usuario {
+.label-subtitle,
+.label-subtitle-secondary {
     -fx-font-size: 16px;
-    -fx-text-fill: #fff;
+    -fx-text-fill: #2d3a4b;
 }
 
-/* --------- Botones --------- */
-.button, .btn-primary {
-    -fx-background-color: #00B2A9;
-    -fx-text-fill: #fff;
-    -fx-background-radius: 8px;
-    -fx-padding: 8 28 8 18;
-    -fx-font-size: 16px;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.07), 3, 0.2, 0, 2);
+.label-section {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #123e6c;
+}
+
+.label,
+.label-field {
+    -fx-text-fill: #1f2933;
+    -fx-font-size: 15px;
+}
+
+.text-field,
+.combo-box,
+.password-field,
+.date-picker {
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+    -fx-border-color: #c3cedd;
+    -fx-background-color: #ffffff;
+    -fx-font-size: 15px;
+    -fx-text-fill: #1f2933;
+}
+
+.text-field:focused,
+.combo-box:focused,
+.password-field:focused {
+    -fx-border-color: #123e6c;
+}
+
+.button {
+    -fx-background-radius: 4px;
+    -fx-font-weight: bold;
+    -fx-font-size: 15px;
     -fx-cursor: hand;
-    -fx-alignment: center;
-    -fx-graphic-text-gap: 8px;
+    -fx-padding: 8 20;
+    -fx-text-fill: #f1f5f9;
+    -fx-background-color: #123e6c;
 }
 
-.button:focused, .btn-primary:focused {
-    -fx-border-color: #FFC845;
-}
-
-.button:hover, .btn-primary:hover {
-    -fx-background-color: derive(#00B2A9, 30%);
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.07), 8, 0.2, 0, 3);
-    -fx-scale-x: 1.04;
-    -fx-scale-y: 1.04;
-}
-
-/* Botones especiales */
-.btn-danger {
-    -fx-background-color: #E74483;
-}
-.btn-danger:hover {
-    -fx-background-color: derive(#E74483, 20%);
-}
-.btn-accent {
-    -fx-background-color: #FFC845;
-}
-.btn-accent:hover {
-    -fx-background-color: derive(#FFC845, 20%);
-}
-
-/* --------- Inputs --------- */
-.text-field, .password-field {
-    -fx-background-radius: 8px;
-    -fx-border-radius: 8px;
-    -fx-border-color: #00B2A9;
-    -fx-border-width: 1;
-    -fx-padding: 4 8 4 8;
-    -fx-background-color: #fff;
-    -fx-font-size: 16px;
-}
-.text-field:focused, .password-field:focused {
-    -fx-border-color: #00B2A9;
-    -fx-background-color: #f8fafd;
-}
-
-/* --------- Tablas --------- */
-.table-view {
-    -fx-background-color: transparent;
-    -fx-border-radius: 8px;
-}
-.table-view .column-header {
-    -fx-background-color: #1e4370;
-    -fx-text-fill: #fff;
-    -fx-font-weight: bold;
-    -fx-font-size: 16px;
-}
-.table-row-cell:odd {
-    -fx-background-color: #eaf5fa;
-}
-.table-row-cell:even {
-    -fx-background-color: #fff;
-}
-.table-row-cell:selected {
-    -fx-background-color: #FFC845;
-    -fx-text-fill: #1e4370;
-}
-.table-view, .table-row-cell {
-    -fx-table-cell-border-color: #c2e3ea;
-    -fx-border-width: 0 0 1 0;
-}
-
-/* --------- Toasts y alerts --------- */
-.toast-success {
-    -fx-background-color: #25D366;
-    -fx-text-fill: white;
-    -fx-background-radius: 14px;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.07), 10, 0.3, 0, 4);
-}
-.toast-error {
-    -fx-background-color: #E74483;
-    -fx-text-fill: white;
-    -fx-background-radius: 14px;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.07), 10, 0.3, 0, 4);
-}
-.toast-warning {
-    -fx-background-color: #FFC845;
-    -fx-text-fill: #1e4370;
-    -fx-background-radius: 14px;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.07), 10, 0.3, 0, 4);
-}
-.toast {
-    -fx-font-size: 16px;
-    -fx-padding: 14 32 14 32;
-    -fx-alignment: center;
-    -fx-opacity: 0.96;
-    -fx-translate-y: 20px;
-}
-.header-box {
-    -fx-background-color: #1e4370;
-    -fx-padding: 12 20;
-    -fx-background-insets: 0;
-}
-.menu-bar {
-    -fx-background-color: #E74483;
-}
-
-.menu-bar .label {
-    -fx-text-fill: #1e4370;
-    -fx-font-size: 14px;
-    -fx-font-weight: bold;
-}
-
-.menu-bar .menu:hover {
-    -fx-background-color: #2c4a72;
-}
-
-.panel {
-    -fx-background-color: #fff;
-    -fx-background-radius: 8px;
-    -fx-padding: 16;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.07), 10, 0.1, 0, 3);
-}
-
-.text-field {
-    -fx-background-radius: 8px;
-    -fx-border-color: #00B2A9;
-    -fx-padding: 6 8 6 8;
+.button:hover {
+    -fx-background-color: #0d2e52;
 }
 
 .btn-primary {
-    -fx-background-color: #00B2A9;
-    -fx-text-fill: white;
-    -fx-background-radius: 6px;
+    -fx-background-color: #123e6c;
 }
 
 .btn-danger {
+    -fx-background-color: #e0225a;
+    -fx-padding: 6 18;
+    -fx-text-fill: #fff5f7;
+}
+
+.btn-danger:hover {
+    -fx-background-color: #fff5f7;
+}
+
+.table-view {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 10px;
+    -fx-background-radius: 10px;
+}
+
+.table-view .column-header {
+    -fx-background-color: #e2e8f0;
+    -fx-text-fill: #1f2933;
+    -fx-font-weight: bold;
+}
+
+.table-row-cell {
+    -fx-text-fill: #1f2933;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: #f0f4fb;
+}
+
+.table-row-cell:even {
+    -fx-background-color: #ffffff;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #b9d4ff;
+    -fx-text-fill: #09264d;
+}
+
+.table-view .button {
+    -fx-font-size: 13px;
+    -fx-padding: 4 14;
+}
+
+.toast-success {
+    -fx-background-color: #25D366;
+    -fx-text-fill: white;
+}
+
+.toast-error {
     -fx-background-color: #E74483;
     -fx-text-fill: white;
 }
-.table-panel {
+
+.toast-warning {
+    -fx-background-color: #FFC845;
+    -fx-text-fill: #1E4370;
+}
+
+.toast {
+    -fx-background-radius: 10px;
+    -fx-padding: 14 24;
+    -fx-font-size: 15px;
+    -fx-opacity: 0.96;
+}
+
+.menu-bar {
+    -fx-background-color: #e7ecf6;
+    -fx-border-color: transparent;
+}
+
+.menu-bar .menu-button {
     -fx-background-color: transparent;
-    -fx-padding: 8;
-}
-.table-view .column-header {
-    -fx-background-color: #fff;
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
-    -fx-font-size: 14px;
 }
 
-.table-row-cell:odd {
-    -fx-background-color: #eaf5fa;
+.menu-bar .label {
+    -fx-text-fill: #142b4f;
+    -fx-font-weight: 600;
 }
-.table-row-cell:even {
-    -fx-background-color: #fff;
-}
-.label-field {
-    -fx-text-fill: #f1f1f1;  /* blanco o gris claro */
-    -fx-font-size: 16px;
-    -fx-font-weight: bold;
-}
-
-/* --------- cebra --------- */
-
-.table-row-cell:odd {
-    -fx-background-color: #1d4675;
-}
-.table-row-cell:even {
-    -fx-background-color: #204b82;
-}
-.table-row-cell:selected {
-    -fx-background-color: #12e0c7;
-}
-.table-view {
-    -fx-table-cell-border-color: transparent;
-    -fx-background-insets: 0;
-}
-
-
-
-
-/* --------- Iconos --------- */
-/* Para Ikonli solo hace falta agregar la clase de botón y usar el graphicNode */

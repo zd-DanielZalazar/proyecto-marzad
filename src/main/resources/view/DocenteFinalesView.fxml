@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.sga.marzad.controller.DocenteFinalesController"
+            prefWidth="920" prefHeight="520"
+            styleClass="view-background">
+
+    <top>
+        <VBox spacing="6" alignment="CENTER" styleClass="panel-header">
+            <Label text="Finales y alumnos inscriptos" styleClass="label-title"/>
+            <Label text="Seleccione una materia para revisar sus mesas" styleClass="label-subtitle"/>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox spacing="16" alignment="TOP_CENTER" styleClass="panel-content">
+            <ComboBox fx:id="comboMaterias" prefWidth="420"/>
+
+            <Label text="Mesas de examen" styleClass="label-section"/>
+            <TableView fx:id="tablaFinales" prefHeight="220">
+                <columns>
+                    <TableColumn fx:id="colFecha" text="Fecha"/>
+                    <TableColumn fx:id="colAula" text="Aula"/>
+                    <TableColumn fx:id="colCupo" text="Cupo"/>
+                    <TableColumn fx:id="colInscriptos" text="Inscriptos"/>
+                </columns>
+                <placeholder>
+                    <Label text="No se encontraron finales para esta materia"/>
+                </placeholder>
+            </TableView>
+
+            <Label text="Alumnos inscriptos" styleClass="label-section"/>
+            <TableView fx:id="tablaInscriptos" prefHeight="150">
+                <columns>
+                    <TableColumn fx:id="colAlumno" text="Alumno"/>
+                    <TableColumn fx:id="colDni" text="DNI"/>
+                    <TableColumn fx:id="colEstado" text="Estado"/>
+                </columns>
+                <placeholder>
+                    <Label text="Seleccione un final para ver los inscriptos"/>
+                </placeholder>
+            </TableView>
+        </VBox>
+    </center>
+</BorderPane>

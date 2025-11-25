@@ -9,7 +9,7 @@
             styleClass="main-bg">
     <top>
         <Label text="Mis Datos Personales"
-               style="-fx-font-size: 22px; -fx-text-fill: white; -fx-padding: 20;"
+               style="-fx-font-size: 22px; -fx-text-fill: #123e6c; -fx-padding: 20;"
                BorderPane.alignment="CENTER"/>
     </top>
     <center>

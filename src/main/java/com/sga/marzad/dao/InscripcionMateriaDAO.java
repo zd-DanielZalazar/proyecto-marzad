@@ -217,4 +217,19 @@ public class InscripcionMateriaDAO {
         }
         return "";
     }
+
+    /** Marca una inscripción como cancelada (borrado lógico). */
+    public boolean eliminar(int idInscripcion) {
+        String sql = "UPDATE inscripciones SET estado = 'CANCELADA' WHERE id = ?";
+        try (Connection c = ConexionBD.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, idInscripcion);
+            int filas = ps.executeUpdate();
+            return filas > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }

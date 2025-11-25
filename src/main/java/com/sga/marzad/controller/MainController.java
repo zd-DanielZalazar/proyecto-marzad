@@ -101,7 +101,12 @@ public class MainController implements Initializable {
         menuBar.getMenus().clear();
 
         Usuario u = UsuarioSesion.getUsuario();
-        if (u != null && "ADMIN".equalsIgnoreCase(u.getRol())) {
+        String rol = u != null ? u.getRol() : "";
+        boolean esAdmin = "ADMIN".equalsIgnoreCase(rol);
+        boolean esAlumno = "ALUMNO".equalsIgnoreCase(rol);
+        boolean esDocente = "DOCENTE".equalsIgnoreCase(rol);
+
+        if (esAdmin) {
             // --------- MENÚ ADMIN ---------
             MenuItem altaCarreraMateriaItem = new MenuItem("Alta de carreras y materias");
             altaCarreraMateriaItem.setOnAction(e -> abrirVentanaModal("/view/AltaCarreraWizard.fxml", "Alta de carreras y materias"));
@@ -116,24 +121,26 @@ public class MainController implements Initializable {
         }
 
         // --------- MENÚ INSCRIPCIONES ---------
-        Menu inscripciones = new Menu("Inscripciones");
-        MenuItem materias = new MenuItem("Inscripción a Materias");
-        MenuItem examenes = new MenuItem("Inscripción a Exámenes Finales");
-
-        materias.setOnAction(e -> abrirVentanaInscripcionMateria());
-        examenes.setOnAction(e -> mostrarAlertaInfo("Esta vista aún no está disponible."));
-        inscripciones.getItems().addAll(materias, examenes);
+        if (esAlumno) {
+            Menu inscripciones = new Menu("Inscripciones");
+            MenuItem materias = new MenuItem("Inscripción a Materias");
+            MenuItem examenes = new MenuItem("Inscripción a Exámenes Finales");
+            materias.setOnAction(e -> abrirVentanaInscripcionMateria());
+            examenes.setOnAction(e -> abrirVentanaInscripcionFinal());
+            inscripciones.getItems().addAll(materias, examenes);
+            menuBar.getMenus().add(inscripciones);
+        }
 
         // --------- MENÚ TRÁMITES ---------
-        Menu tramites = new Menu("Trámites");
-        MenuItem certificados = new MenuItem("Descarga Certificado Alumno Regular");
-        MenuItem estadoAcademico = new MenuItem("Estado Académico");
-        MenuItem estadoClases = new MenuItem("Estado de Clases");
-
-        certificados.setOnAction(e -> onCertificadoAlumnoRegularClick());
-        estadoAcademico.setOnAction(e -> mostrarAlertaInfo("Estado académico en desarrollo."));
-        estadoClases.setOnAction(e -> mostrarAlertaInfo("Vista para docentes."));
-        tramites.getItems().addAll(certificados, estadoAcademico, estadoClases);
+        if (esAlumno) {
+            Menu tramites = new Menu("Trámites");
+            MenuItem certificados = new MenuItem("Descarga Certificado Alumno Regular");
+            MenuItem analitico = new MenuItem("Analítico parcial");
+            certificados.setOnAction(e -> onCertificadoAlumnoRegularClick());
+            analitico.setOnAction(e -> abrirAnaliticoParcial());
+            tramites.getItems().addAll(certificados, analitico);
+            menuBar.getMenus().add(tramites);
+        }
 
         // --------- MENÚ CUENTA ---------
         Menu cuenta = new Menu("Cuenta");
@@ -148,7 +155,17 @@ public class MainController implements Initializable {
         });
         cuenta.getItems().addAll(perfil, cerrar);
 
-        menuBar.getMenus().addAll(inscripciones, tramites, cuenta);
+        if (esDocente) {
+            Menu docenteMenu = new Menu("Docente");
+            MenuItem panelMaterias = new MenuItem("Notas y asistencia de cursada");
+            panelMaterias.setOnAction(e -> abrirPanelDocente());
+            MenuItem panelFinales = new MenuItem("Finales y alumnos inscriptos");
+            panelFinales.setOnAction(e -> abrirPanelDocenteFinales());
+            docenteMenu.getItems().addAll(panelMaterias, panelFinales);
+            menuBar.getMenus().add(docenteMenu);
+        }
+
+        menuBar.getMenus().add(cuenta);
     }
 
     private void abrirVentanaInscripcionMateria() {
@@ -183,6 +200,29 @@ public class MainController implements Initializable {
         } catch (Exception e) {
             e.printStackTrace();
             mostrarAlertaInfo("No se pudo abrir la vista de inscripción de materias.");
+        }
+    }
+
+    private void abrirVentanaInscripcionFinal() {
+        if (UsuarioSesion.getCarreraId() == null || UsuarioSesion.getAlumnoId() == null) {
+            mostrarAlerta("Atención", "Debes tener una carrera activa para inscribirte a finales.", Alert.AlertType.WARNING);
+            return;
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/InscripcionFinalView.fxml"));
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(Main.class.getResource("/css/estilos.css").toExternalForm());
+
+            Stage stage = new Stage();
+            stage.setTitle("Inscripción a Exámenes Finales");
+            stage.setScene(scene);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setResizable(false);
+            stage.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarAlertaInfo("No se pudo abrir la vista de finales.");
         }
     }
 
@@ -224,6 +264,75 @@ public class MainController implements Initializable {
         } catch (Exception e) {
             e.printStackTrace();
             mostrarAlertaInfo("No se pudo abrir la vista de perfil.");
+        }
+    }
+
+    private void abrirAnaliticoParcial() {
+        if (UsuarioSesion.getAlumnoId() == null) {
+            mostrarAlerta("Atención", "Solo los alumnos pueden consultar el analítico.", Alert.AlertType.WARNING);
+            return;
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/AnaliticoParcialView.fxml"));
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(Main.class.getResource("/css/estilos.css").toExternalForm());
+
+            Stage stage = new Stage();
+            stage.setTitle("Analítico Parcial");
+            stage.setScene(scene);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setResizable(false);
+            stage.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarAlertaInfo("No se pudo abrir el analítico parcial.");
+        }
+    }
+
+    private void abrirPanelDocente() {
+        if (UsuarioSesion.getDocenteId() == null) {
+            mostrarAlerta("Atención", "Debes iniciar sesión como docente para acceder al panel.", Alert.AlertType.WARNING);
+            return;
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/DocenteMateriasView.fxml"));
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(Main.class.getResource("/css/estilos.css").toExternalForm());
+
+            Stage stage = new Stage();
+            stage.setTitle("Panel Docente");
+            stage.setScene(scene);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setResizable(false);
+            stage.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarAlertaInfo("No se pudo abrir el panel docente.");
+        }
+    }
+
+    private void abrirPanelDocenteFinales() {
+        if (UsuarioSesion.getDocenteId() == null) {
+            mostrarAlerta("Atención", "Debes iniciar sesión como docente para acceder al panel.", Alert.AlertType.WARNING);
+            return;
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/DocenteFinalesView.fxml"));
+            Parent root = loader.load();
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(Main.class.getResource("/css/estilos.css").toExternalForm());
+
+            Stage stage = new Stage();
+            stage.setTitle("Finales y alumnos");
+            stage.setScene(scene);
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setResizable(false);
+            stage.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+            mostrarAlertaInfo("No se pudo abrir la vista de finales para docentes.");
         }
     }
 

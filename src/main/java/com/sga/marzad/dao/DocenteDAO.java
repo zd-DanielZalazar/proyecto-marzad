@@ -24,7 +24,7 @@ public class DocenteDAO {
                         rs.getString("apellido"),
                         rs.getString("legajo"),
                         rs.getString("correo"),
-                        rs.getString("genero"),
+                        getGeneroSafe(rs),
                         rs.getBoolean("habilitado")
                 );
             }
@@ -50,7 +50,7 @@ public class DocenteDAO {
                         rs.getString("apellido"),
                         rs.getString("legajo"),
                         rs.getString("correo"),
-                        rs.getString("genero"),
+                        getGeneroSafe(rs),
                         rs.getBoolean("habilitado")
                 );
             }
@@ -80,6 +80,21 @@ public class DocenteDAO {
             return rows > 0;
 
         } catch (SQLException e) {
+            // Si la columna genero no existe (bases antiguas), actualizar sin ese campo
+            if (e.getMessage() != null && e.getMessage().contains("Unknown column 'genero'")) {
+                try (Connection conn = ConexionBD.getConnection();
+                     PreparedStatement stmt = conn.prepareStatement(
+                             "UPDATE docentes SET nombre = ?, apellido = ?, correo = ? WHERE id = ?")) {
+                    stmt.setString(1, nombre);
+                    stmt.setString(2, apellido);
+                    stmt.setString(3, correo);
+                    stmt.setInt(4, id);
+                    return stmt.executeUpdate() > 0;
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                    return false;
+                }
+            }
             e.printStackTrace();
             return false;
         }
@@ -176,5 +191,16 @@ public class DocenteDAO {
             e.printStackTrace();
         }
         return docentes;
+    }
+
+    private static String getGeneroSafe(ResultSet rs) throws SQLException {
+        try {
+            return rs.getString("genero");
+        } catch (SQLException e) {
+            if (e.getMessage() != null && e.getMessage().contains("genero")) {
+                return null;
+            }
+            throw e;
+        }
     }
 }

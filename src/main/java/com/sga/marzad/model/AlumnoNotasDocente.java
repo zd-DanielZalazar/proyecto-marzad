@@ -3,6 +3,7 @@ package com.sga.marzad.model;
 import javafx.beans.property.*;
 
 public class AlumnoNotasDocente {
+    private final IntegerProperty inscripcionId;
     private final IntegerProperty alumnoId;
     private final StringProperty nombreCompleto;
     private final StringProperty dni;
@@ -16,8 +17,9 @@ public class AlumnoNotasDocente {
     private final DoubleProperty recup2;
     private final DoubleProperty finalPromo;
 
-    public AlumnoNotasDocente(int alumnoId, String nombreCompleto, String dni, String correo, String estadoInscripcion,
+    public AlumnoNotasDocente(int inscripcionId, int alumnoId, String nombreCompleto, String dni, String correo, String estadoInscripcion,
                               Double parcial1, Double recup1, Double parcial2, Double recup2, Double finalPromo) {
+        this.inscripcionId = new SimpleIntegerProperty(inscripcionId);
         this.alumnoId = new SimpleIntegerProperty(alumnoId);
         this.nombreCompleto = new SimpleStringProperty(nombreCompleto);
         this.dni = new SimpleStringProperty(dni);
@@ -31,6 +33,9 @@ public class AlumnoNotasDocente {
     }
 
     // Getters y Propertys
+    public int getInscripcionId() { return inscripcionId.get(); }
+    public IntegerProperty inscripcionIdProperty() { return inscripcionId; }
+
     public int getAlumnoId() { return alumnoId.get(); }
     public IntegerProperty alumnoIdProperty() { return alumnoId; }
 

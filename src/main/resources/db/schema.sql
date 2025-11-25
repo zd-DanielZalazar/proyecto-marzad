@@ -50,6 +50,7 @@ CREATE TABLE docentes (
                           apellido VARCHAR(50) NOT NULL,
                           legajo VARCHAR(20) UNIQUE,
                           correo VARCHAR(100),
+                          genero ENUM('F','M','Otro'),
                           habilitado BOOLEAN NOT NULL DEFAULT TRUE,
                           FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 ) ENGINE=InnoDB;
@@ -131,6 +132,27 @@ CREATE TABLE inscripciones (
                                FOREIGN KEY (inscripcion_carrera_id) REFERENCES inscripciones_carrera(id)
 ) ENGINE=InnoDB;
 
+CREATE TABLE examenes_finales (
+                                  id INT AUTO_INCREMENT PRIMARY KEY,
+                                  materia_id INT NOT NULL,
+                                  fecha DATETIME NOT NULL,
+                                  aula VARCHAR(50),
+                                  cupo INT NOT NULL DEFAULT 30,
+                                  estado ENUM('PUBLICADO','CERRADO') NOT NULL DEFAULT 'PUBLICADO',
+                                  FOREIGN KEY (materia_id) REFERENCES materias(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE inscripciones_finales (
+                                       id INT AUTO_INCREMENT PRIMARY KEY,
+                                       alumno_id INT NOT NULL,
+                                       examen_final_id INT NOT NULL,
+                                       fecha_insc DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                       estado ENUM('ACTIVA','CANCELADA') NOT NULL DEFAULT 'ACTIVA',
+                                       UNIQUE(alumno_id, examen_final_id),
+                                       FOREIGN KEY (alumno_id) REFERENCES alumnos(id),
+                                       FOREIGN KEY (examen_final_id) REFERENCES examenes_finales(id)
+) ENGINE=InnoDB;
+
 -- =========================
 -- CALIFICACIONES
 -- =========================
@@ -138,11 +160,33 @@ CREATE TABLE calificaciones (
                                 id INT AUTO_INCREMENT PRIMARY KEY,
                                 inscripcion_id INT NOT NULL,
                                 docente_id INT NOT NULL,
+                                tipo ENUM('PARCIAL_1','RECUP_1','PARCIAL_2','RECUP_2','FINAL') NOT NULL,
                                 nota DECIMAL(4,2) NOT NULL CHECK (nota BETWEEN 0 AND 10),
                                 fecha_carga DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                 observaciones TEXT,
+                                UNIQUE(inscripcion_id, tipo),
                                 FOREIGN KEY (inscripcion_id) REFERENCES inscripciones(id),
                                 FOREIGN KEY (docente_id) REFERENCES docentes(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE asistencias (
+                             id INT AUTO_INCREMENT PRIMARY KEY,
+                             inscripcion_id INT NOT NULL,
+                             docente_id INT NOT NULL,
+                             fecha DATE NOT NULL,
+                             presente BOOLEAN NOT NULL,
+                             UNIQUE(inscripcion_id, fecha),
+                             FOREIGN KEY (inscripcion_id) REFERENCES inscripciones(id),
+                             FOREIGN KEY (docente_id) REFERENCES docentes(id)
+) ENGINE=InnoDB;
+
+CREATE TABLE notificaciones_usuario (
+                                        id INT AUTO_INCREMENT PRIMARY KEY,
+                                        usuario_id INT NOT NULL,
+                                        asunto VARCHAR(100) NOT NULL,
+                                        mensaje TEXT NOT NULL,
+                                        fecha_envio DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                        FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 ) ENGINE=InnoDB;
 
 -- =========================
@@ -154,8 +198,8 @@ INSERT INTO roles (nombre) VALUES ('ADMIN'), ('DOCENTE'), ('ALUMNO');
 INSERT INTO usuarios (username, password, rol_id, habilitado)
 VALUES ('admin', 'admin123', (SELECT id FROM roles WHERE nombre='ADMIN'), TRUE);
 
-INSERT INTO docentes (usuario_id, nombre, apellido, legajo, correo)
-VALUES (1, 'Super', 'Admin', 'ADM001', 'admin@sga.local');
+INSERT INTO docentes (usuario_id, nombre, apellido, legajo, correo, genero)
+VALUES (1, 'Super', 'Admin', 'ADM001', 'admin@sga.local', 'M');
 
 -- Usuario docente
 INSERT INTO usuarios (username, password, rol_id, habilitado)
@@ -163,8 +207,8 @@ VALUES ('jlopez', 'docente123', (SELECT id FROM roles WHERE nombre='DOCENTE'), T
 
 SET @id_usuario_docente := LAST_INSERT_ID();
 
-INSERT INTO docentes (usuario_id, nombre, apellido, legajo, correo)
-VALUES (@id_usuario_docente, 'Juan', 'López', 'DOC001', 'jlopez@sga.local');
+INSERT INTO docentes (usuario_id, nombre, apellido, legajo, correo, genero)
+VALUES (@id_usuario_docente, 'Juan', 'López', 'DOC001', 'jlopez@sga.local', 'M');
 
 -- Usuario alumno 1
 INSERT INTO usuarios (username, password, rol_id, habilitado)
@@ -370,6 +414,66 @@ INSERT IGNORE INTO correlatividades (materia_id, correlativa_id)
 SELECT m.id, c.id
 FROM materias m, materias c
 WHERE m.nombre='Lógica y Estructura de Datos' AND c.nombre='Elementos de Matemática';
+
+-- =========================
+-- EXAMENES FINALES
+-- =========================
+INSERT INTO examenes_finales (materia_id, fecha, aula, cupo)
+SELECT id, '2025-02-18 09:00:00', 'Aula 101', 40
+FROM materias WHERE nombre='Programaci��n 1' LIMIT 1;
+
+INSERT INTO examenes_finales (materia_id, fecha, aula, cupo)
+SELECT id, '2025-02-19 14:00:00', 'Aula 202', 35
+FROM materias WHERE nombre='Base de Datos 1' LIMIT 1;
+
+INSERT INTO examenes_finales (materia_id, fecha, aula, cupo)
+SELECT id, '2025-02-25 17:00:00', 'Laboratorio 3', 25
+FROM materias WHERE nombre='Proyecto Final' LIMIT 1;
+
+INSERT INTO inscripciones_finales (alumno_id, examen_final_id, estado)
+SELECT a.id, e.id, 'ACTIVA'
+FROM alumnos a
+JOIN usuarios u ON u.id = a.usuario_id
+JOIN examenes_finales e ON e.materia_id = (SELECT id FROM materias WHERE nombre='Programaci��n 1' LIMIT 1)
+WHERE u.username = 'dzalazar'
+LIMIT 1;
+
+-- Relaci�n docente-materia y cursada de ejemplo
+INSERT INTO materia_docente (materia_id, docente_id)
+SELECT m.id, d.id
+FROM materias m
+JOIN docentes d ON d.legajo = 'DOC001'
+WHERE m.nombre IN ('Programaci��n 1','Base de Datos 1')
+ON DUPLICATE KEY UPDATE docente_id = docente_id;
+
+INSERT INTO inscripciones_carrera (alumno_id, carrera_id, estado)
+SELECT a.id, c.id, 'APROBADA'
+FROM alumnos a
+JOIN usuarios u ON u.id = a.usuario_id
+JOIN carreras c ON c.nombre = 'Tecnicatura Superior en Anǭlisis de Sistemas'
+WHERE u.username IN ('dzalazar','qmarsico')
+ON DUPLICATE KEY UPDATE estado = VALUES(estado);
+
+INSERT INTO inscripciones (alumno_id, materia_id, inscripcion_carrera_id, estado)
+SELECT a.id, m.id, ic.id, 'ACTIVA'
+FROM alumnos a
+JOIN usuarios u ON u.id = a.usuario_id
+JOIN inscripciones_carrera ic ON ic.alumno_id = a.id
+JOIN materias m ON m.nombre = 'Programaci��n 1'
+WHERE u.username IN ('dzalazar','qmarsico')
+  AND NOT EXISTS (
+    SELECT 1 FROM inscripciones i WHERE i.alumno_id = a.id AND i.materia_id = m.id
+)
+UNION ALL
+SELECT a.id, m.id, ic.id, 'ACTIVA'
+FROM alumnos a
+JOIN usuarios u ON u.id = a.usuario_id
+JOIN inscripciones_carrera ic ON ic.alumno_id = a.id
+JOIN materias m ON m.nombre = 'Base de Datos 1'
+WHERE u.username = 'dzalazar'
+  AND NOT EXISTS (
+    SELECT 1 FROM inscripciones i WHERE i.alumno_id = a.id AND i.materia_id = m.id
+);
 
 -- Usuarios de prueba:
 -- admin / admin123
