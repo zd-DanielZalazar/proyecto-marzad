@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.sga.marzad.controller.UsuariosController"
+            prefWidth="900" prefHeight="620"
+            styleClass="main-bg">
+
+    <center>
+        <TableView fx:id="tableUsuarios"
+                   prefHeight="380"
+                   styleClass="table-panel">
+            <columns>
+                <TableColumn fx:id="colId"          text="ID"          prefWidth="60"/>
+                <TableColumn fx:id="colUsername"    text="Usuario"     prefWidth="180"/>
+                <TableColumn fx:id="colRol"         text="Rol"         prefWidth="140"/>
+                <TableColumn fx:id="colHabilitado"  text="Habilitado"  prefWidth="90"/>
+                <TableColumn fx:id="colCreado"      text="Creado"      prefWidth="170"/>
+                <TableColumn fx:id="colActualizado" text="Actualizado" prefWidth="170"/>
+            </columns>
+        </TableView>
+    </center>
+
+    <bottom>
+        <VBox spacing="12" styleClass="panel">
+            <padding>
+                <Insets top="12" right="20" bottom="12" left="20"/>
+            </padding>
+
+            <GridPane hgap="12" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints halignment="RIGHT" minWidth="110"/>
+                    <ColumnConstraints hgrow="ALWAYS"/>
+                    <ColumnConstraints halignment="RIGHT" minWidth="110"/>
+                    <ColumnConstraints hgrow="ALWAYS"/>
+                </columnConstraints>
+
+                <Label text="ID:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <TextField fx:id="txtId"
+                           editable="false"
+                           disable="true"
+                           GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                <Label text="Usuario:" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                <TextField fx:id="txtUsername" styleClass="text-field"
+                           GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+
+                <Label text="Password:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <PasswordField fx:id="txtPassword" styleClass="text-field"
+                               promptText="Dejar vacio para no cambiar"
+                               GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                <Label text="Rol:" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+                <ComboBox fx:id="comboRol" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+
+                <Label text="Habilitado:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <CheckBox fx:id="chkHabilitado"
+                          GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+            </GridPane>
+
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+                <Button text="Nuevo"    onAction="#onNuevo"    styleClass="btn-primary"/>
+                <Button text="Guardar"  onAction="#onGuardar"  styleClass="btn-primary"/>
+                <Button text="Eliminar" onAction="#onEliminar" styleClass="btn-danger"/>
+            </HBox>
+        </VBox>
+    </bottom>
+</BorderPane>

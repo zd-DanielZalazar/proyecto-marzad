@@ -41,8 +41,7 @@
                     <TableColumn text="Nombre" fx:id="colNombre"/>
                     <TableColumn text="Año" fx:id="colAnio"/>
                     <TableColumn text="Cuatrimestre" fx:id="colCuatrimestre"/>
-                    <TableColumn text="Créditos" fx:id="colCreditos"/>
-                    <TableColumn text="Correlativas" fx:id="colCorrelativas"/>
+                                        <TableColumn text="Correlativas" fx:id="colCorrelativas"/>
                     <TableColumn text="Docente" fx:id="colDocente"/>
                     <TableColumn text="Horario" fx:id="colHorario"/>
                     <TableColumn text="Acciones" fx:id="colAcciones"/>
@@ -51,3 +50,4 @@
         </VBox>
     </center>
 </BorderPane>
+

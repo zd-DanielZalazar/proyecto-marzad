@@ -13,6 +13,8 @@ public class Materia {
     private int creditos;
     private boolean habilitado;
     private List<Materia> correlativas;
+    private Integer docenteId;
+    private String docenteNombre;
     private String docente;
     private String horario;
 
@@ -24,6 +26,19 @@ public class Materia {
 
     // CONSTRUCTOR NECESARIO PARA DAO:
     public Materia(int id, int planId, String nombre, int anio, int cuatrimestre, int creditos, boolean habilitado) {
+        this(id, planId, nombre, anio, cuatrimestre, creditos, habilitado, null, null, null);
+    }
+
+    public Materia(int id,
+                   int planId,
+                   String nombre,
+                   int anio,
+                   int cuatrimestre,
+                   int creditos,
+                   boolean habilitado,
+                   Integer docenteId,
+                   String docenteNombre,
+                   String horario) {
         this.id = id;
         this.planId = planId;
         this.nombre = nombre;
@@ -31,6 +46,9 @@ public class Materia {
         this.cuatrimestre = cuatrimestre;
         this.creditos = creditos;
         this.habilitado = habilitado;
+        this.docenteId = docenteId;
+        this.docenteNombre = docenteNombre;
+        this.horario = horario;
 
         this.idProperty.set(id);
         this.nombreProperty.set(nombre);
@@ -80,6 +98,12 @@ public class Materia {
 
     public List<Materia> getCorrelativas() { return correlativas; }
     public void setCorrelativas(List<Materia> correlativas) { this.correlativas = correlativas; }
+
+    public Integer getDocenteId() { return docenteId; }
+    public void setDocenteId(Integer docenteId) { this.docenteId = docenteId; }
+
+    public String getDocenteNombre() { return docenteNombre; }
+    public void setDocenteNombre(String docenteNombre) { this.docenteNombre = docenteNombre; }
 
     public String getDocente() { return docente; }
     public void setDocente(String docente) { this.docente = docente; }

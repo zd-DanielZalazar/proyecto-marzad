@@ -107,6 +107,10 @@ public class MainController implements Initializable {
         boolean esDocente = "DOCENTE".equalsIgnoreCase(rol);
 
         if (esAdmin) {
+            MenuItem usuariosItem = new MenuItem("Gestionar usuarios");
+            usuariosItem.setOnAction(e -> abrirVentanaModal("/view/UsuariosView.fxml", "Gestion de usuarios"));
+            Menu usuariosMenu = new Menu("Usuarios");
+            usuariosMenu.getItems().add(usuariosItem);
             // --------- MENÚ ADMIN ---------
             MenuItem altaCarreraMateriaItem = new MenuItem("Alta de carreras y materias");
             altaCarreraMateriaItem.setOnAction(e -> abrirVentanaModal("/view/AltaCarreraWizard.fxml", "Alta de carreras y materias"));
@@ -118,6 +122,7 @@ public class MainController implements Initializable {
             adminMenu.getItems().addAll(altaCarreraMateriaItem, editarCarreraMateriaItem);
 
             menuBar.getMenus().add(0, adminMenu);
+            menuBar.getMenus().add(0, usuariosMenu);
         }
 
         // --------- MENÚ INSCRIPCIONES ---------
@@ -374,3 +379,5 @@ public class MainController implements Initializable {
         return null;
     }
 }
+
+

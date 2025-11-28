@@ -82,6 +82,7 @@ CREATE TABLE materias (
                           anio TINYINT NOT NULL,
                           cuatrimestre TINYINT NOT NULL,
                           creditos SMALLINT NOT NULL DEFAULT 0,
+                          horario VARCHAR(100),
                           habilitado BOOLEAN NOT NULL DEFAULT TRUE,
                           FOREIGN KEY (plan_id) REFERENCES planes_estudio(id)
 ) ENGINE=InnoDB;
