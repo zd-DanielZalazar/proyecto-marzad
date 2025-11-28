@@ -170,25 +170,26 @@ public class DocenteDAO {
     }
 
     public static List<Docente> obtenerTodos() {
+        return obtenerDocentesHabilitados();
+    }
+
+    /** Devuelve docentes habilitados y cuyo usuario tambi��n est�� habilitado y rol = DOCENTE */
+    public static List<Docente> obtenerDocentesHabilitados() {
+        sincronizarDocentesDesdeUsuarios();
         List<Docente> docentes = new ArrayList<>();
-        try (Connection conn = ConexionBD.getConnection()) {
-            String sql = "SELECT * FROM docentes WHERE habilitado = 1";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                docentes.add(new Docente(
-                        rs.getInt("id"),
-                        rs.getInt("usuario_id"),
-                        rs.getString("nombre"),
-                        rs.getString("apellido"),
-                        rs.getString("legajo"),
-                        rs.getString("correo"),
-                        rs.getString("genero"),
-                        rs.getBoolean("habilitado")
-                ));
-            }
+        try {
+            docentes.addAll(consultaDocentes(true));
         } catch (SQLException e) {
-            e.printStackTrace();
+            // bases sin columna genero
+            if (e.getMessage() != null && e.getMessage().toLowerCase().contains("genero")) {
+                try {
+                    docentes.addAll(consultaDocentes(false));
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            } else {
+                e.printStackTrace();
+            }
         }
         return docentes;
     }
@@ -202,5 +203,71 @@ public class DocenteDAO {
             }
             throw e;
         }
+    }
+
+    /** Inserta filas en docentes para usuarios con rol DOCENTE que no tengan entrada en docentes */
+    private static void sincronizarDocentesDesdeUsuarios() {
+        String sql = """
+            INSERT INTO docentes (usuario_id, nombre, apellido, legajo, correo, habilitado)
+            SELECT u.id, u.username, u.username, CONCAT('DOC', u.id), CONCAT(u.username, '@mail.local'), u.habilitado
+              FROM usuarios u
+              JOIN roles r ON r.id = u.rol_id
+              LEFT JOIN docentes d ON d.usuario_id = u.id
+             WHERE d.usuario_id IS NULL
+               AND u.habilitado = 1
+               AND UPPER(r.nombre) = 'DOCENTE'
+            """;
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            // Si falla (por esquema viejo sin alguna columna), lo ignoramos: no interrumpe la carga
+        }
+    }
+
+    private static List<Docente> consultaDocentes(boolean conGenero) throws SQLException {
+        List<Docente> docentes = new ArrayList<>();
+        String sqlConGenero = """
+            SELECT d.id, d.usuario_id, d.nombre, d.apellido, d.legajo, d.correo, d.genero, d.habilitado
+              FROM docentes d
+              JOIN usuarios u ON u.id = d.usuario_id
+              JOIN roles r ON r.id = u.rol_id
+             WHERE d.habilitado = 1
+               AND u.habilitado = 1
+               AND UPPER(r.nombre) = 'DOCENTE'
+             ORDER BY d.apellido, d.nombre
+            """;
+        String sqlSinGenero = """
+            SELECT d.id, d.usuario_id, d.nombre, d.apellido, d.legajo, d.correo, d.habilitado
+              FROM docentes d
+              JOIN usuarios u ON u.id = d.usuario_id
+              JOIN roles r ON r.id = u.rol_id
+             WHERE d.habilitado = 1
+               AND u.habilitado = 1
+               AND UPPER(r.nombre) = 'DOCENTE'
+             ORDER BY d.apellido, d.nombre
+            """;
+        String sql = conGenero ? sqlConGenero : sqlSinGenero;
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                String genero = null;
+                if (conGenero) {
+                    try { genero = rs.getString("genero"); } catch (SQLException ignore) { genero = null; }
+                }
+                docentes.add(new Docente(
+                        rs.getInt("id"),
+                        rs.getInt("usuario_id"),
+                        rs.getString("nombre"),
+                        rs.getString("apellido"),
+                        rs.getString("legajo"),
+                        rs.getString("correo"),
+                        genero,
+                        rs.getBoolean("habilitado")
+                ));
+            }
+        }
+        return docentes;
     }
 }

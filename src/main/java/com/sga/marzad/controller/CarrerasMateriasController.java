@@ -126,6 +126,7 @@ public class CarrerasMateriasController {
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+                    setText(null);
                     setGraphic(null);
                 } else {
                     Materia materiaActual = (Materia) getTableRow().getItem();
@@ -133,6 +134,10 @@ public class CarrerasMateriasController {
                             .filter(m -> m.getId() != materiaActual.getId())
                             .collect(Collectors.toList());
                     combo.setItems(FXCollections.observableArrayList(posibles));
+                    String texto = (materiaActual.getCorrelativas() == null || materiaActual.getCorrelativas().isEmpty())
+                            ? ""
+                            : materiaActual.getCorrelativas().stream().map(Materia::getNombre).collect(Collectors.joining(", "));
+                    setText(texto);
                     setGraphic(combo);
                 }
             }
@@ -159,6 +164,7 @@ public class CarrerasMateriasController {
                     if (materiaDAO.asignarDocente(materia.getId(), docenteId)) {
                         materia.setDocenteId(docenteId);
                         materia.setDocenteNombre(seleccionado != null ? combo.getConverter().toString(seleccionado) : null);
+                        tablaMaterias.refresh();
                     }
                 });
             }
@@ -166,6 +172,7 @@ public class CarrerasMateriasController {
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
                 if (empty || getTableRow() == null || getTableRow().getItem() == null) {
+                    setText(null);
                     setGraphic(null);
                 } else {
                     Materia materiaActual = (Materia) getTableRow().getItem();
@@ -177,6 +184,7 @@ public class CarrerasMateriasController {
                     } else {
                         combo.getSelectionModel().clearSelection();
                     }
+                    setText(materiaActual.getDocenteNombre());
                     setGraphic(combo);
                 }
             }
@@ -189,11 +197,13 @@ public class CarrerasMateriasController {
             Materia mat = event.getRowValue();
             mat.setHorario(event.getNewValue());
             materiaDAO.actualizarMateria(mat);
+            tablaMaterias.refresh();
         });
 
         colAcciones.setCellFactory(col -> new TableCell<>() {
-            private final Button btnEliminar = new Button("Deshabilitar");
+            private final Button btnEliminar = new Button("X");
             {
+                btnEliminar.setPrefWidth(50);
                 btnEliminar.setOnAction(event -> {
                     Materia mat = getTableView().getItems().get(getIndex());
                     if (mat != null) {

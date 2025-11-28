@@ -9,6 +9,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AltaCarreraPaso2Controller {
@@ -28,14 +29,17 @@ public class AltaCarreraPaso2Controller {
     @FXML private TableColumn<MateriaWizard, Void> colAcciones;
 
     private NuevaCarreraWizardData wizardData;
-    private ObservableList<MateriaWizard> materiasObservable = FXCollections.observableArrayList();
-    private List<Docente> docentesDisponibles;
+    private final ObservableList<MateriaWizard> materiasObservable = FXCollections.observableArrayList();
+    private List<Docente> docentesDisponibles = new ArrayList<>();
     private Runnable onAnterior;
     private Runnable onSiguiente;
 
     public void setWizardData(NuevaCarreraWizardData data) {
         this.wizardData = data;
         lblCarreraInfo.setText("Carrera: " + data.getNombreCarrera() + " | Duración: " + data.getDuracionAnios() + " años");
+        if (docentesDisponibles.isEmpty()) {
+            cargarDocentes();
+        }
 
         comboAnio.getItems().clear();
         for (int i = 1; i <= data.getDuracionAnios(); i++) {
@@ -51,25 +55,8 @@ public class AltaCarreraPaso2Controller {
 
     @FXML
     public void initialize() {
-        // --- Cargar docentes desde la base ---
-        docentesDisponibles = DocenteDAO.obtenerTodos();
-        comboDocente.setItems(FXCollections.observableArrayList(docentesDisponibles));
-        comboDocente.setCellFactory(lv -> new ListCell<>() {
-            @Override
-            protected void updateItem(Docente docente, boolean empty) {
-                super.updateItem(docente, empty);
-                setText((empty || docente == null) ? "" : docente.getNombre() + " " + docente.getApellido());
-            }
-        });
-        comboDocente.setButtonCell(new ListCell<>() {
-            @Override
-            protected void updateItem(Docente docente, boolean empty) {
-                super.updateItem(docente, empty);
-                setText((empty || docente == null) ? "" : docente.getNombre() + " " + docente.getApellido());
-            }
-        });
+        cargarDocentes();
 
-        // --- Día y hora ---
         comboDia.setItems(FXCollections.observableArrayList("Lunes", "Martes", "Miércoles", "Jueves", "Viernes"));
         ObservableList<String> horas = FXCollections.observableArrayList();
         for (int h = 8; h <= 21; h++) {
@@ -79,7 +66,6 @@ public class AltaCarreraPaso2Controller {
         horas.add("22:00");
         comboHora.setItems(horas);
 
-        // --- Tabla materias ---
         colNombre.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getNombre()));
         colAnio.setCellValueFactory(data -> new javafx.beans.property.SimpleIntegerProperty(data.getValue().getAnio()).asObject());
         colDocente.setCellValueFactory(data -> {
@@ -124,7 +110,6 @@ public class AltaCarreraPaso2Controller {
             return;
         }
 
-        // Validar que no se repita nombre en el mismo año
         for (MateriaWizard mat : materiasObservable) {
             if (mat.getNombre().equalsIgnoreCase(nombre) && mat.getAnio() == anio) {
                 showAlert("Ya existe una materia con ese nombre en el mismo año.");
@@ -135,7 +120,7 @@ public class AltaCarreraPaso2Controller {
         MateriaWizard nueva = new MateriaWizard();
         nueva.setNombre(nombre);
         nueva.setAnio(anio);
-        nueva.setDocenteId(docente.getId()); // <<---- IMPORTANTE: guarda el ID
+        nueva.setDocenteId(docente.getId());
         nueva.setDia(dia);
         nueva.setHora(hora);
 
@@ -171,5 +156,31 @@ public class AltaCarreraPaso2Controller {
     private void showAlert(String mensaje) {
         Alert alert = new Alert(Alert.AlertType.ERROR, mensaje, ButtonType.OK);
         alert.showAndWait();
-}
+    }
+
+    private void cargarDocentes() {
+        try {
+            docentesDisponibles = DocenteDAO.obtenerDocentesHabilitados();
+        } catch (Exception e) {
+            docentesDisponibles = new ArrayList<>();
+        }
+        comboDocente.setItems(FXCollections.observableArrayList(docentesDisponibles));
+        comboDocente.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(Docente docente, boolean empty) {
+                super.updateItem(docente, empty);
+                setText((empty || docente == null) ? "" : docente.getNombre() + " " + docente.getApellido());
+            }
+        });
+        comboDocente.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(Docente docente, boolean empty) {
+                super.updateItem(docente, empty);
+                setText((empty || docente == null) ? "" : docente.getNombre() + " " + docente.getApellido());
+            }
+        });
+        if (docentesDisponibles.isEmpty()) {
+            comboDocente.setPromptText("Sin docentes habilitados");
+        }
+    }
 }
