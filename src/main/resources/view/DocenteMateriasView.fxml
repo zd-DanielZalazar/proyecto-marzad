@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.sga.marzad.controller.DocenteMateriasController"
@@ -22,8 +23,23 @@
             <TabPane prefWidth="900">
                 <tabs>
                     <Tab text="Calificaciones" closable="false">
-                        <HBox spacing="18" alignment="TOP_CENTER">
-                            <TableView fx:id="tablaAlumnos" editable="true" prefHeight="360" prefWidth="620">
+                        <VBox spacing="12" alignment="TOP_CENTER">
+                            <HBox spacing="20" alignment="CENTER_LEFT" prefWidth="900">
+                                <VBox spacing="6" alignment="TOP_LEFT" styleClass="panel">
+                                    <Label text="Alumno seleccionado" styleClass="label-section"/>
+                                    <HBox spacing="12" alignment="CENTER_LEFT">
+                                        <Label text="Nombre:" styleClass="label-field"/>
+                                        <Label fx:id="lblAlumnoNombre" text="-" style="-fx-font-weight: bold;"/>
+                                        <Label text="DNI:" styleClass="label-field" />
+                                        <Label fx:id="lblAlumnoDni" text="-" />
+                                        <Label text="Estado:" styleClass="label-field" />
+                                        <Label fx:id="lblAlumnoEstado" text="-" />
+                                    </HBox>
+                                    <Label text="Edita las notas directamente en la tabla. Usa Enter para confirmar cada cambio."
+                                           wrapText="true" style="-fx-text-fill: #435362;"/>
+                                </VBox>
+                            </HBox>
+                            <TableView fx:id="tablaAlumnos" editable="true" prefHeight="360" prefWidth="900">
                                 <columns>
                                     <TableColumn fx:id="colNombre" text="Nombre y Apellido"/>
                                     <TableColumn fx:id="colDni" text="DNI"/>
@@ -37,26 +53,18 @@
                                     <TableColumn fx:id="colAcciones" text="Acción"/>
                                 </columns>
                             </TableView>
-                            <VBox spacing="10" alignment="TOP_LEFT" prefWidth="220" styleClass="panel">
-                                <Label text="Alumno seleccionado" styleClass="label-section"/>
-                                <Label text="Nombre:" styleClass="label-field"/>
-                                <Label fx:id="lblAlumnoNombre" text="-" style="-fx-font-weight: bold;"/>
-                                <Label text="DNI:" styleClass="label-field"/>
-                                <Label fx:id="lblAlumnoDni" text="-"/>
-                                <Label text="Estado:" styleClass="label-field"/>
-                                <Label fx:id="lblAlumnoEstado" text="-"/>
-                                <Label text="Editá las notas directamente en la tabla. Usa Enter para confirmar cada cambio."
-                                       wrapText="true" style="-fx-text-fill: #435362;"/>
-                            </VBox>
-                        </HBox>
+                        </VBox>
                     </Tab>
                     <Tab text="Asistencias" closable="false">
-                        <VBox spacing="12" alignment="TOP_CENTER">
-                            <HBox spacing="10" alignment="CENTER_LEFT">
+                        <VBox spacing="14" alignment="TOP_CENTER">
+                            <padding><Insets top="8" right="0" bottom="0" left="0"/></padding>
+                            <HBox spacing="14" alignment="CENTER_LEFT">
+                                <padding><Insets top="6" right="0" bottom="6" left="0"/></padding>
                                 <Label text="Fecha:" styleClass="label-field"/>
                                 <DatePicker fx:id="dateAsistencia"/>
                                 <CheckBox fx:id="chkMarcarTodos" text="Marcar todos presentes" onAction="#onMarcarTodos"/>
                                 <Button text="Guardar asistencia" onAction="#onGuardarAsistencia" styleClass="btn-primary"/>
+                                <Button text="Cuadro resumen" onAction="#onVerCuadroAsistencias" styleClass="btn-secondary"/>
                                 <Button text="Limpiar" onAction="#onLimpiarAsistencia" styleClass="btn-danger"/>
                             </HBox>
                             <TableView fx:id="tablaAsistencias" prefHeight="260">
@@ -64,6 +72,9 @@
                                     <TableColumn fx:id="colAsistAlumno" text="Alumno"/>
                                     <TableColumn fx:id="colAsistDni" text="DNI"/>
                                     <TableColumn fx:id="colAsistPresente" text="Presente"/>
+                                    <TableColumn fx:id="colAsistAusente" text="Ausente"/>
+                                    <TableColumn fx:id="colAsistPresentes" text="Presentes"/>
+                                    <TableColumn fx:id="colAsistTotal" text="Clases"/>
                                 </columns>
                                 <placeholder>
                                     <Label text="Seleccione materia y fecha para cargar asistencias"/>

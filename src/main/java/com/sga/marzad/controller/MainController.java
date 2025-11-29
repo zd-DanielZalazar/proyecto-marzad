@@ -184,7 +184,7 @@ public class MainController implements Initializable {
             Parent root = loader.load();
             InscripcionMateriaController controller = loader.getController();
 
-            // ✅ Pasar datos desde la sesión al controller
+            //  Pasar datos desde la sesión al controller
             controller.setDatosAlumno(
                     UsuarioSesion.getAlumnoId(),
                     UsuarioSesion.getCarreraId(),
@@ -358,7 +358,7 @@ public class MainController implements Initializable {
         alert.showAndWait();
     }
 
-    // ⚠️ Buscar alumno sigue siendo necesario SOLO para el certificado
+    // ️ Buscar alumno sigue siendo necesario SOLO para el certificado
     private Alumno buscarAlumnoPorUsuarioId(int usuarioId) {
         try (var conn = com.sga.marzad.utils.ConexionBD.getConnection();
              var stmt = conn.prepareStatement("SELECT * FROM alumnos WHERE usuario_id = ?")) {

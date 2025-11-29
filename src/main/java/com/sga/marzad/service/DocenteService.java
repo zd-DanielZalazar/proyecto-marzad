@@ -7,6 +7,8 @@ import com.sga.marzad.model.AlumnoFinalInscripto;
 import com.sga.marzad.model.AlumnoNotasDocente;
 import com.sga.marzad.model.AsistenciaAlumnoRow;
 import com.sga.marzad.model.AsistenciaRegistro;
+import com.sga.marzad.model.AsistenciaMatrizResult;
+import com.sga.marzad.model.AsistenciaMatrizRow;
 import com.sga.marzad.model.ExamenFinal;
 import com.sga.marzad.model.Materia;
 import com.sga.marzad.utils.ConexionBD;
@@ -17,8 +19,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class DocenteService {
 
@@ -29,11 +35,19 @@ public class DocenteService {
     public List<Materia> obtenerMateriasPorDocente(int docenteId) {
         List<Materia> materias = new ArrayList<>();
         String sql = """
-            SELECT m.id, m.plan_id, m.nombre, m.anio, m.cuatrimestre, m.creditos, m.habilitado
-            FROM materia_docente md
-            JOIN materias m ON md.materia_id = m.id
-            WHERE md.docente_id = ?
-            ORDER BY m.anio, m.nombre
+            SELECT x.id, x.plan_id, x.nombre, x.anio, x.cuatrimestre, x.creditos, x.habilitado
+            FROM (
+                 SELECT m.id, m.plan_id, m.nombre, m.anio, m.cuatrimestre, m.creditos, m.habilitado,
+                        ROW_NUMBER() OVER (
+                            PARTITION BY LOWER(m.nombre), m.anio, m.cuatrimestre
+                            ORDER BY m.id DESC
+                        ) AS rn
+                   FROM materia_docente md
+                   JOIN materias m ON md.materia_id = m.id
+                  WHERE md.docente_id = ?
+            ) x
+            WHERE x.rn = 1
+            ORDER BY x.anio, x.nombre
             """;
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -72,18 +86,25 @@ public class DocenteService {
                    MAX(CASE WHEN c.tipo = 'RECUP_2' THEN c.nota END) AS recup2,
                    MAX(CASE WHEN c.tipo = 'FINAL' THEN c.nota END) AS nota_final
             FROM inscripciones i
+            JOIN (
+                SELECT MAX(id) AS id
+                FROM inscripciones
+                WHERE materia_id = ?
+                  AND estado IN ('ACTIVA','CANCELADA')
+                GROUP BY alumno_id
+            ) ult ON ult.id = i.id
             JOIN alumnos a ON a.id = i.alumno_id
             JOIN materia_docente md ON md.materia_id = i.materia_id
             LEFT JOIN calificaciones c ON c.inscripcion_id = i.id
             WHERE md.docente_id = ? AND i.materia_id = ?
-              AND i.estado IN ('ACTIVA','CANCELADA')
             GROUP BY i.id, a.id, nombre, a.dni, a.correo, i.estado
             ORDER BY nombre
             """;
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, docenteId);
-            ps.setInt(2, materiaId);
+            ps.setInt(1, materiaId);
+            ps.setInt(2, docenteId);
+            ps.setInt(3, materiaId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     alumnos.add(new AlumnoNotasDocente(
@@ -160,21 +181,38 @@ public class DocenteService {
                    a.id AS alumno_id,
                    CONCAT(a.nombre, ' ', a.apellido) AS nombre,
                    a.dni,
-                   IFNULL(ast.presente, FALSE) AS presente
+                   IFNULL(ast.presente, FALSE) AS presente,
+                   CASE WHEN ast.inscripcion_id IS NULL THEN 0 ELSE 1 END AS marcado_hoy,
+                   IFNULL(res.total_presentes, 0) AS total_presentes,
+                   IFNULL(res.total_clases, 0) AS total_clases
             FROM inscripciones i
+            JOIN (
+                SELECT MAX(id) AS id
+                FROM inscripciones
+                WHERE materia_id = ?
+                  AND estado IN ('ACTIVA','CANCELADA')
+                GROUP BY alumno_id
+            ) ult ON ult.id = i.id
             JOIN alumnos a ON a.id = i.alumno_id
             JOIN materia_docente md ON md.materia_id = i.materia_id AND md.docente_id = ?
             LEFT JOIN asistencias ast ON ast.inscripcion_id = i.id AND ast.fecha = ?
+            LEFT JOIN (
+                SELECT inscripcion_id,
+                       SUM(CASE WHEN presente = 1 THEN 1 ELSE 0 END) AS total_presentes,
+                       COUNT(*) AS total_clases
+                  FROM asistencias
+                 GROUP BY inscripcion_id
+            ) res ON res.inscripcion_id = i.id
             WHERE i.materia_id = ?
-              AND i.estado IN ('ACTIVA','CANCELADA')
             ORDER BY nombre
             """;
         List<AsistenciaAlumnoRow> lista = new ArrayList<>();
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, docenteId);
-            ps.setDate(2, Date.valueOf(fecha));
-            ps.setInt(3, materiaId);
+            ps.setInt(1, materiaId);
+            ps.setInt(2, docenteId);
+            ps.setDate(3, Date.valueOf(fecha));
+            ps.setInt(4, materiaId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     lista.add(new AsistenciaAlumnoRow(
@@ -182,7 +220,10 @@ public class DocenteService {
                             rs.getInt("alumno_id"),
                             rs.getString("nombre"),
                             rs.getString("dni"),
-                            rs.getBoolean("presente")
+                            rs.getBoolean("presente"),
+                            rs.getBoolean("marcado_hoy"),
+                            rs.getInt("total_presentes"),
+                            rs.getInt("total_clases")
                     ));
                 }
             }
@@ -198,5 +239,56 @@ public class DocenteService {
 
     public boolean eliminarAsistencia(int asistenciaId) {
         return asistenciaDAO.eliminar(asistenciaId);
+    }
+
+    /**
+     * Devuelve la matriz de asistencias (fechas como columnas, alumnos como filas) para un docente/materia.
+     */
+    public AsistenciaMatrizResult obtenerMatrizAsistencias(int docenteId, int materiaId) {
+        String sql = """
+            SELECT i.id AS inscripcion_id,
+                   CONCAT(a.nombre, ' ', a.apellido) AS nombre,
+                   a.dni,
+                   ast.fecha,
+                   ast.presente
+              FROM inscripciones i
+              JOIN materia_docente md ON md.materia_id = i.materia_id AND md.docente_id = ?
+              JOIN alumnos a ON a.id = i.alumno_id
+              LEFT JOIN asistencias ast ON ast.inscripcion_id = i.id
+             WHERE i.materia_id = ?
+               AND i.estado IN ('ACTIVA','CANCELADA')
+             ORDER BY a.apellido, a.nombre, ast.fecha
+            """;
+        Map<Integer, AsistenciaMatrizRow> filas = new LinkedHashMap<>();
+        Set<LocalDate> fechas = new TreeSet<>();
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, docenteId);
+            ps.setInt(2, materiaId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    int inscId = rs.getInt("inscripcion_id");
+                    String nombre = rs.getString("nombre");
+                    String dni = rs.getString("dni");
+                    LocalDate fecha = null;
+                    try {
+                        Date f = rs.getDate("fecha");
+                        if (f != null) fecha = f.toLocalDate();
+                    } catch (SQLException ignore) {
+                        fecha = null;
+                    }
+                    boolean presente = rs.getBoolean("presente");
+
+                    AsistenciaMatrizRow row = filas.computeIfAbsent(inscId, id -> new AsistenciaMatrizRow(id, nombre, dni));
+                    if (fecha != null) {
+                        fechas.add(fecha);
+                        row.marcar(fecha, presente);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return new AsistenciaMatrizResult(new ArrayList<>(fechas), new ArrayList<>(filas.values()));
     }
 }

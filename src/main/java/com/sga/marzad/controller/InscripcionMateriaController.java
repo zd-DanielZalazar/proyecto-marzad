@@ -12,7 +12,7 @@ import java.util.List;
 
 public class InscripcionMateriaController {
 
-    // 🔹 Referencias FXML
+    // Referencias FXML
     @FXML private ComboBox<MateriaDisponible> comboMaterias;
     @FXML private Button btnInscribir;
     @FXML private Label lblEstado;
@@ -26,7 +26,7 @@ public class InscripcionMateriaController {
     private final InscripcionMateriaDAO inscDAO = new InscripcionMateriaDAO();
 
     // ======================================================
-    // 🔹 Inicialización general de la vista
+    //  Inicialización general de la vista
     // ======================================================
     @FXML
     public void initialize() {
@@ -37,7 +37,7 @@ public class InscripcionMateriaController {
         colEstado.setCellValueFactory(new PropertyValueFactory<>("estado"));
         tablaInscripciones.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-        // 🔹 Personalizar color de la columna Estado
+        //  Personalizar color de la columna Estado
         colEstado.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(String estado, boolean empty) {
@@ -56,7 +56,7 @@ public class InscripcionMateriaController {
             }
         });
 
-        // 🔹 Columna de botones "Desinscribir"
+        //  Columna de botones "Desinscribir"
         configurarColumnaAcciones();
 
         lblCarrera.setText(
@@ -67,7 +67,7 @@ public class InscripcionMateriaController {
     }
 
     // ======================================================
-// 🔹 Configura la columna "Acciones" con el botón Desinscribir
+//  Configura la columna "Acciones" con el botón Desinscribir
 // ======================================================
     private void configurarColumnaAcciones() {
         colAcciones.setCellFactory(col -> new TableCell<>() {
@@ -93,7 +93,7 @@ public class InscripcionMateriaController {
                 } else {
                     InscripcionMateria insc = getTableView().getItems().get(getIndex());
 
-                    // 🔹 Si está CANCELADA → desactivar botón
+                    // Si está CANCELADA → desactivar botón
                     if ("CANCELADA".equals(insc.getEstado())) {
                         btnDesinscribir.setDisable(true);
                         btnDesinscribir.setText("Cancelada");
@@ -113,7 +113,7 @@ public class InscripcionMateriaController {
 
 
     // ======================================================
-    // 🔹 Acción de desinscribirse de una materia
+    //  Acción de desinscribirse de una materia
     // ======================================================
     private void desinscribirse(InscripcionMateria inscripcion) {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
@@ -136,7 +136,7 @@ public class InscripcionMateriaController {
     }
 
     // ======================================================
-    // 🔹 Cargar materias disponibles para inscribirse
+    //  Cargar materias disponibles para inscribirse
     // ======================================================
     private void cargarMateriasDisponibles() {
         int alumnoId = UsuarioSesion.getAlumnoId();
@@ -155,7 +155,7 @@ public class InscripcionMateriaController {
     }
 
     // ======================================================
-    // 🔹 Mostrar estado de la materia seleccionada
+    //  Mostrar estado de la materia seleccionada
     // ======================================================
     private void mostrarEstadoMateria() {
         MateriaDisponible seleccionada = comboMaterias.getValue();
@@ -166,7 +166,7 @@ public class InscripcionMateriaController {
     }
 
     // ======================================================
-    // 🔹 Acción principal: inscribirse
+    //  Acción principal: inscribirse
     // ======================================================
     @FXML
     private void inscribirseEnMateria() {
@@ -178,6 +178,11 @@ public class InscripcionMateriaController {
 
         if (alumnoId == null || inscripcionCarreraId == null) {
             mostrarAlerta("No hay una inscripción activa a carrera para este alumno.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        if (inscDAO.existeInscripcionActiva(alumnoId, seleccionada.getId())) {
+            mostrarAlerta("Ya esta inscripto en esta materia.", Alert.AlertType.INFORMATION);
             return;
         }
 
@@ -200,7 +205,7 @@ public class InscripcionMateriaController {
     }
 
     // ======================================================
-    // 🔹 Cargar inscripciones activas del alumno
+    //  Cargar inscripciones activas del alumno
     // ======================================================
     private void cargarInscripcionesAlumno() {
         Integer alumnoId = UsuarioSesion.getAlumnoId();
@@ -211,7 +216,7 @@ public class InscripcionMateriaController {
     }
 
     // ======================================================
-    // 🔹 Mostrar alertas informativas
+    //  Mostrar alertas informativas
     // ======================================================
     private void mostrarAlerta(String msg, Alert.AlertType tipo) {
         Alert alert = new Alert(tipo);
@@ -222,7 +227,7 @@ public class InscripcionMateriaController {
     }
 
     // ======================================================
-    // 🔹 Cargar datos del alumno actual
+    //  Cargar datos del alumno actual
     // ======================================================
     public void setDatosAlumno(Integer alumnoId, Integer carreraId, Integer inscripcionCarreraId, String carreraNombre) {
         UsuarioSesion.setAlumnoId(alumnoId);

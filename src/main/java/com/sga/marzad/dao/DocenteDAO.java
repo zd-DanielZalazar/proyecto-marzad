@@ -173,7 +173,7 @@ public class DocenteDAO {
         return obtenerDocentesHabilitados();
     }
 
-    /** Devuelve docentes habilitados y cuyo usuario tambi��n est�� habilitado y rol = DOCENTE */
+    /** Devuelve docentes habilitados y cuyo usuario tambien esta habilitado y rol = DOCENTE */
     public static List<Docente> obtenerDocentesHabilitados() {
         sincronizarDocentesDesdeUsuarios();
         List<Docente> docentes = new ArrayList<>();

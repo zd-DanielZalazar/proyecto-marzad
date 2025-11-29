@@ -23,7 +23,15 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.util.converter.DoubleStringConverter;
+import javafx.geometry.Pos;
+import javafx.util.StringConverter;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import javafx.stage.Modality;
+import java.time.format.DateTimeFormatter;
+import com.sga.marzad.model.AsistenciaMatrizResult;
+import com.sga.marzad.model.AsistenciaMatrizRow;
+import java.util.Comparator;
 
 import java.time.LocalDate;
 
@@ -51,6 +59,9 @@ public class DocenteMateriasController {
     @FXML private TableColumn<AsistenciaAlumnoRow, String> colAsistAlumno;
     @FXML private TableColumn<AsistenciaAlumnoRow, String> colAsistDni;
     @FXML private TableColumn<AsistenciaAlumnoRow, Boolean> colAsistPresente;
+    @FXML private TableColumn<AsistenciaAlumnoRow, Boolean> colAsistAusente;
+    @FXML private TableColumn<AsistenciaAlumnoRow, Number> colAsistPresentes;
+    @FXML private TableColumn<AsistenciaAlumnoRow, Number> colAsistTotal;
     @FXML private DatePicker dateAsistencia;
     @FXML private CheckBox chkMarcarTodos;
 
@@ -116,7 +127,50 @@ public class DocenteMateriasController {
         colAsistAlumno.setCellValueFactory(data -> data.getValue().nombreCompletoProperty());
         colAsistDni.setCellValueFactory(data -> data.getValue().dniProperty());
         colAsistPresente.setCellValueFactory(data -> data.getValue().presenteProperty());
-        colAsistPresente.setCellFactory(CheckBoxTableCell.forTableColumn(colAsistPresente));
+        colAsistPresente.setCellFactory(col -> new TableCell<>() {
+            private final CheckBox check = new CheckBox();
+            {
+                check.setOnAction(evt -> {
+                    AsistenciaAlumnoRow row = getTableView().getItems().get(getIndex());
+                    row.setPresente(check.isSelected());
+                });
+            }
+            @Override
+            protected void updateItem(Boolean item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    check.setSelected(getTableView().getItems().get(getIndex()).isPresente());
+                    setGraphic(check);
+                    setAlignment(Pos.CENTER);
+                }
+            }
+        });
+        colAsistAusente.setCellValueFactory(data -> data.getValue().ausenteProperty());
+        colAsistAusente.setCellFactory(col -> new TableCell<>() {
+            private final CheckBox check = new CheckBox();
+            {
+                check.setOnAction(evt -> {
+                    AsistenciaAlumnoRow row = getTableView().getItems().get(getIndex());
+                    row.setAusente(check.isSelected());
+                });
+            }
+            @Override
+            protected void updateItem(Boolean item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    check.setSelected(getTableView().getItems().get(getIndex()).isAusente());
+                    setGraphic(check);
+                    setAlignment(Pos.CENTER);
+                }
+            }
+        });
+        colAsistPresentes.setCellValueFactory(data -> data.getValue().totalPresentesProperty());
+        colAsistTotal.setCellValueFactory(data -> data.getValue().totalClasesProperty());
+        tablaAsistencias.setEditable(true);
         tablaAsistencias.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         chkMarcarTodos.setSelected(false);
     }
@@ -140,7 +194,20 @@ public class DocenteMateriasController {
             java.util.function.Function<AlumnoNotasDocente, DoubleProperty> propertyGetter,
             String tipoNota) {
         col.setCellValueFactory(cellData -> propertyGetter.apply(cellData.getValue()).asObject());
-        col.setCellFactory(tc -> new TextFieldTableCell<>(new DoubleStringConverter()));
+        StringConverter<Double> intConverter = new StringConverter<>() {
+            @Override
+            public String toString(Double value) {
+                if (value == null) return "";
+                return String.valueOf(value.intValue());
+            }
+            @Override
+            public Double fromString(String s) {
+                if (s == null || s.isBlank()) return null;
+                int val = Integer.parseInt(s.trim());
+                return (double) val;
+            }
+        };
+        col.setCellFactory(tc -> new TextFieldTableCell<>(intConverter));
 
         col.setOnEditCommit(event -> {
             AlumnoNotasDocente alumno = event.getRowValue();
@@ -208,6 +275,55 @@ public class DocenteMateriasController {
     }
 
     @FXML
+    private void onVerCuadroAsistencias() {
+        Materia materia = comboMaterias.getValue();
+        if (materia == null) {
+            mostrarAlerta("Seleccione una materia para ver el cuadro de asistencias.");
+            return;
+        }
+        AsistenciaMatrizResult matriz = service.obtenerMatrizAsistencias(docenteId, materia.getId());
+        if (matriz.getFechas().isEmpty()) {
+            mostrarAlerta("No hay asistencias registradas para esta materia.");
+            return;
+        }
+        mostrarVentanaMatriz(matriz);
+    }
+
+    private void mostrarVentanaMatriz(AsistenciaMatrizResult matriz) {
+        TableView<AsistenciaMatrizRow> tabla = new TableView<>();
+        TableColumn<AsistenciaMatrizRow, String> colNombre = new TableColumn<>("Alumno");
+        colNombre.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getNombreCompleto()));
+        TableColumn<AsistenciaMatrizRow, String> colDni = new TableColumn<>("DNI");
+        colDni.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getDni()));
+        tabla.getColumns().addAll(colNombre, colDni);
+
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM");
+        matriz.getFechas().stream()
+                .sorted(Comparator.naturalOrder())
+                .forEach(fecha -> {
+                    TableColumn<AsistenciaMatrizRow, String> col = new TableColumn<>(fmt.format(fecha));
+                    col.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getValor(fecha)));
+                    col.setPrefWidth(70);
+                    tabla.getColumns().add(col);
+                });
+
+        TableColumn<AsistenciaMatrizRow, String> colPresentes = new TableColumn<>("Presentes");
+        colPresentes.setCellValueFactory(data -> new SimpleStringProperty(String.valueOf(data.getValue().getPresentes())));
+        TableColumn<AsistenciaMatrizRow, String> colClases = new TableColumn<>("Clases");
+        colClases.setCellValueFactory(data -> new SimpleStringProperty(String.valueOf(data.getValue().getTotalClases())));
+        tabla.getColumns().addAll(colPresentes, colClases);
+
+        tabla.setItems(FXCollections.observableArrayList(matriz.getFilas()));
+        tabla.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
+
+        Stage stage = new Stage();
+        stage.setTitle("Cuadro de asistencias");
+        stage.initModality(Modality.NONE);
+        stage.setScene(new Scene(tabla, 800, 400));
+        stage.show();
+    }
+
+    @FXML
     private void onGuardarAsistencia() {
         LocalDate fecha = dateAsistencia.getValue();
         if (fecha == null) {
@@ -220,18 +336,25 @@ public class DocenteMateriasController {
         Alert ok = new Alert(Alert.AlertType.INFORMATION, "Asistencia guardada correctamente.");
         ok.setHeaderText(null);
         ok.showAndWait();
+        cargarAsistenciasDiarias();
     }
 
     @FXML
     private void onLimpiarAsistencia() {
-        tablaAsistencias.getItems().forEach(row -> row.setPresente(false));
+        tablaAsistencias.getItems().forEach(row -> {
+            row.setPresente(false);
+            row.setAusente(false);
+        });
         chkMarcarTodos.setSelected(false);
     }
 
     @FXML
     private void onMarcarTodos() {
         boolean marcado = chkMarcarTodos.isSelected();
-        tablaAsistencias.getItems().forEach(row -> row.setPresente(marcado));
+        tablaAsistencias.getItems().forEach(row -> {
+            row.setPresente(marcado);
+            row.setAusente(false);
+        });
     }
 
     private void mostrarAlerta(String msg) {

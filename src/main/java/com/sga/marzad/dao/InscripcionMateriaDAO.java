@@ -15,6 +15,12 @@ public class InscripcionMateriaDAO {
 
     /** Registra la inscripción de un alumno a una materia. */
     public boolean insertar(InscripcionMateria insc) {
+        if (existeInscripcionActiva(insc.getAlumnoId(), insc.getMateriaId())) {
+            return false;
+        }
+        if (reactivarInscripcionCancelada(insc)) {
+            return true;
+        }
         String sql = """
             INSERT INTO inscripciones (alumno_id, materia_id, inscripcion_carrera_id)
             VALUES (?, ?, ?)
@@ -54,13 +60,21 @@ public class InscripcionMateriaDAO {
     public List<InscripcionMateria> listarPorAlumno(int alumnoId) {
         List<InscripcionMateria> lista = new ArrayList<>();
         String sql = """
-            SELECT id, alumno_id, materia_id, inscripcion_carrera_id, fecha_insc, estado
-              FROM inscripciones
-             WHERE alumno_id = ?
+            SELECT i.id, i.alumno_id, i.materia_id, i.inscripcion_carrera_id, i.fecha_insc, i.estado
+              FROM inscripciones i
+              JOIN (
+                   SELECT materia_id, MAX(id) AS id
+                     FROM inscripciones
+                    WHERE alumno_id = ?
+                    GROUP BY materia_id
+              ) ult ON ult.id = i.id
+             WHERE i.alumno_id = ?
+             ORDER BY i.fecha_insc DESC, i.id DESC
             """;
         try (Connection c = ConexionBD.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, alumnoId);
+            ps.setInt(2, alumnoId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     InscripcionMateria insc = new InscripcionMateria(
@@ -226,6 +240,40 @@ public class InscripcionMateriaDAO {
             ps.setInt(1, idInscripcion);
             int filas = ps.executeUpdate();
             return filas > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Si existe una inscripcion cancelada para el mismo alumno y materia, se reactiva
+     * en lugar de generar una fila nueva, evitando duplicados historicos.
+     */
+    private boolean reactivarInscripcionCancelada(InscripcionMateria insc) {
+        String sql = """
+            UPDATE inscripciones
+               SET estado = 'ACTIVA',
+                   inscripcion_carrera_id = ?,
+                   fecha_insc = CURRENT_TIMESTAMP
+             WHERE id = (
+                 SELECT id FROM (
+                     SELECT id
+                       FROM inscripciones
+                      WHERE alumno_id = ?
+                        AND materia_id = ?
+                      ORDER BY fecha_insc DESC, id DESC
+                      LIMIT 1
+                 ) tmp
+             )
+               AND estado = 'CANCELADA'
+            """;
+        try (Connection c = ConexionBD.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setInt(1, insc.getInscripcionCarreraId());
+            ps.setInt(2, insc.getAlumnoId());
+            ps.setInt(3, insc.getMateriaId());
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
