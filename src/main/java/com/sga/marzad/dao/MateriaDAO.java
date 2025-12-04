@@ -415,4 +415,26 @@ public class MateriaDAO {
         }
         return lista;
     }
+
+    /** Obtener la carrera a la que pertenece una materia */
+    public Integer obtenerCarreraIdPorMateria(int materiaId) {
+        String sql = """
+            SELECT p.carrera_id
+              FROM materias m
+              JOIN planes_estudio p ON m.plan_id = p.id
+             WHERE m.id = ?
+            """;
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, materiaId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("carrera_id");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

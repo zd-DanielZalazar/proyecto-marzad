@@ -3,7 +3,9 @@ package com.sga.marzad.controller;
 import com.sga.marzad.dao.ExamenFinalDAO;
 import com.sga.marzad.dao.InscripcionFinalDAO;
 import com.sga.marzad.dao.MateriaDAO;
+import com.sga.marzad.dao.CarreraDAO;
 import com.sga.marzad.model.AlumnoFinalInscripto;
+import com.sga.marzad.model.Carrera;
 import com.sga.marzad.model.ExamenFinal;
 import com.sga.marzad.model.Materia;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -21,6 +23,7 @@ import java.time.format.DateTimeParseException;
 
 public class AdminFinalesController {
 
+    @FXML private ComboBox<Carrera> comboCarrera;
     @FXML private ComboBox<Materia> comboMateria;
     @FXML private DatePicker dpFecha;
     @FXML private TextField txtHora;
@@ -40,6 +43,7 @@ public class AdminFinalesController {
     @FXML private TableColumn<AlumnoFinalInscripto, Void> colAccionAlumno;
 
     private final MateriaDAO materiaDAO = new MateriaDAO();
+    private final CarreraDAO carreraDAO = new CarreraDAO();
     private final ExamenFinalDAO examenFinalDAO = new ExamenFinalDAO();
     private final InscripcionFinalDAO inscripcionFinalDAO = new InscripcionFinalDAO();
     private final DateTimeFormatter horaFmt = DateTimeFormatter.ofPattern("HH:mm");
@@ -57,11 +61,27 @@ public class AdminFinalesController {
     }
 
     private void configurarCombos() {
-        comboMateria.setItems(FXCollections.observableArrayList(materiaDAO.obtenerTodasHabilitadas()));
+        comboCarrera.setItems(FXCollections.observableArrayList(carreraDAO.obtenerCarrerasHabilitadas()));
+        comboCarrera.setConverter(new StringConverter<>() {
+            @Override public String toString(Carrera c) { return c == null ? "" : c.getNombre(); }
+            @Override public Carrera fromString(String s) { return null; }
+        });
+        comboCarrera.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> cargarMateriasPorCarrera(newVal));
+
+        cargarMateriasPorCarrera(null);
         comboMateria.setConverter(new StringConverter<>() {
             @Override public String toString(Materia m) { return m == null ? "" : m.getNombre(); }
             @Override public Materia fromString(String s) { return null; }
         });
+    }
+
+    private void cargarMateriasPorCarrera(Carrera carrera) {
+        if (carrera == null) {
+            comboMateria.setItems(FXCollections.observableArrayList(materiaDAO.obtenerTodasHabilitadas()));
+        } else {
+            comboMateria.setItems(FXCollections.observableArrayList(materiaDAO.obtenerMateriasPorCarrera(carrera.getId())));
+        }
+        comboMateria.getSelectionModel().clearSelection();
     }
 
     private void configurarTablas() {
@@ -111,6 +131,7 @@ public class AdminFinalesController {
         comboMateria.getItems().stream()
                 .filter(m -> m.getId() == mesa.getMateriaId())
                 .findFirst().ifPresent(m -> comboMateria.getSelectionModel().select(m));
+        seleccionarCarreraDeMateria(mesa.getMateriaId());
         if (mesa.getFecha() != null) {
             dpFecha.setValue(mesa.getFecha().toLocalDate());
             txtHora.setText(mesa.getFecha().toLocalTime().format(horaFmt));
@@ -135,6 +156,22 @@ public class AdminFinalesController {
         tablaInscriptos.setItems(FXCollections.observableArrayList(
                 inscripcionFinalDAO.listarAlumnosPorExamen(mesa.getId())
         ));
+    }
+
+    private void seleccionarCarreraDeMateria(int materiaId) {
+        Integer carreraId = materiaDAO.obtenerCarreraIdPorMateria(materiaId);
+        if (carreraId == null) return;
+        comboCarrera.getItems().stream()
+                .filter(c -> c.getId() == carreraId)
+                .findFirst()
+                .ifPresent(c -> {
+                    comboCarrera.getSelectionModel().select(c);
+                    cargarMateriasPorCarrera(c);
+                    comboMateria.getItems().stream()
+                            .filter(m -> m.getId() == materiaId)
+                            .findFirst()
+                            .ifPresent(m -> comboMateria.getSelectionModel().select(m));
+                });
     }
 
     @FXML

@@ -30,20 +30,23 @@
                     <ColumnConstraints hgrow="ALWAYS"/>
                 </columnConstraints>
 
-                <Label text="Materia:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                <ComboBox fx:id="comboMateria" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                <Label text="Carrera:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="comboCarrera" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-                <Label text="Fecha:" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
-                <HBox spacing="8" GridPane.rowIndex="0" GridPane.columnIndex="3">
+                <Label text="Materia:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="comboMateria" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                <Label text="Fecha:" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+                <HBox spacing="8" GridPane.rowIndex="1" GridPane.columnIndex="3">
                     <DatePicker fx:id="dpFecha"/>
                     <TextField fx:id="txtHora" promptText="HH:mm" prefWidth="80"/>
                 </HBox>
 
-                <Label text="Aula:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                <TextField fx:id="txtAula" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                <Label text="Aula:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <TextField fx:id="txtAula" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
-                <Label text="Cupo:" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
-                <TextField fx:id="txtCupo" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+                <Label text="Cupo:" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+                <TextField fx:id="txtCupo" GridPane.rowIndex="2" GridPane.columnIndex="3"/>
             </GridPane>
 
             <HBox spacing="10" alignment="CENTER_RIGHT">
