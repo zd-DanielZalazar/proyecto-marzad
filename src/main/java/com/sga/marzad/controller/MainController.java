@@ -161,7 +161,10 @@ public class MainController implements Initializable {
             mainStage.close();
             Main.goToLogin();
         });
-        cuenta.getItems().addAll(perfil, cerrar);
+        if (!esAdmin) {
+            cuenta.getItems().add(perfil);
+        }
+        cuenta.getItems().add(cerrar);
 
         if (esDocente) {
             Menu docenteMenu = new Menu("Docente");
