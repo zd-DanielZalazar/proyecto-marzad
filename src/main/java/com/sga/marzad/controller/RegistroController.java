@@ -66,6 +66,11 @@ public class RegistroController implements Initializable {
         String genero = comboGeneroAlumno.getValue();
 
         if (!validarCampos(nombre, apellido, dni, correo, genero)) return;
+        Integer carreraId = obtenerCarreraSeleccionada();
+        if (carreraId == null) {
+            mostrarAlerta("Seleccione una carrera para el alumno.", Alert.AlertType.WARNING);
+            return;
+        }
 
         try (Connection conn = ConexionBD.getConnection()) {
             String username = generarUsername(conn, nombre, apellido);
@@ -84,6 +89,15 @@ public class RegistroController implements Initializable {
                 ps.setDate(6, fechaNac != null ? Date.valueOf(fechaNac) : null);
                 ps.setString(7, genero);
                 ps.executeUpdate();
+
+                PreparedStatement psCarrera = conn.prepareStatement("""
+                    INSERT INTO inscripciones_carrera (alumno_id, carrera_id, estado)
+                    VALUES (?, ?, 'APROBADA')
+                    ON DUPLICATE KEY UPDATE estado = VALUES(estado)
+                """);
+                psCarrera.setInt(1, obtenerAlumnoId(conn, usuarioId));
+                psCarrera.setInt(2, carreraId);
+                psCarrera.executeUpdate();
 
                 mostrarAlerta("Registro exitoso", Alert.AlertType.INFORMATION);
                 volver();
@@ -206,6 +220,26 @@ public class RegistroController implements Initializable {
         ResultSet rs = stmt.executeQuery("SELECT COUNT(*) + 1000 FROM docentes");
         rs.next();
         return "L" + rs.getInt(1);
+    }
+
+    private Integer obtenerCarreraSeleccionada() {
+        String sel = comboCarreras.getValue();
+        if (sel == null || !sel.contains("[ID:")) return null;
+        try {
+            int pos = sel.indexOf("[ID:") + 4;
+            int end = sel.indexOf("]", pos);
+            return Integer.parseInt(sel.substring(pos, end));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private int obtenerAlumnoId(Connection conn, int usuarioId) throws SQLException {
+        PreparedStatement ps = conn.prepareStatement("SELECT id FROM alumnos WHERE usuario_id = ?");
+        ps.setInt(1, usuarioId);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) return rs.getInt(1);
+        throw new SQLException("No se pudo obtener id de alumno recien creado");
     }
 
     private void mostrarAlerta(String mensaje, Alert.AlertType tipo) {

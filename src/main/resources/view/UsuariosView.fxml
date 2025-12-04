@@ -54,15 +54,18 @@
                                GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
                 <Label text="Rol:" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
-                <ComboBox fx:id="comboRol" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+                <ComboBox fx:id="comboRol" GridPane.rowIndex="1" GridPane.columnIndex="3" onAction="#onRolChanged"/>
 
                 <Label text="Habilitado:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
                 <CheckBox fx:id="chkHabilitado"
                           GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                <Label text="Carrera:" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+                <ComboBox fx:id="comboCarrera" GridPane.rowIndex="2" GridPane.columnIndex="3"/>
             </GridPane>
 
             <HBox spacing="10" alignment="CENTER_RIGHT">
-                <Button text="Nuevo"    onAction="#onNuevo"    styleClass="btn-primary"/>
+                <Button text="Limpiar"  onAction="#onLimpiar"  styleClass="btn-secondary"/>
                 <Button text="Guardar"  onAction="#onGuardar"  styleClass="btn-primary"/>
                 <Button text="Eliminar" onAction="#onEliminar" styleClass="btn-danger"/>
             </HBox>

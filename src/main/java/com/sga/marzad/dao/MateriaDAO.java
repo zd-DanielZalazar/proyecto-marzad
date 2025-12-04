@@ -386,4 +386,33 @@ public class MateriaDAO {
             return null;
         }
     }
+
+    /** Listar todas las materias habilitadas (admin) */
+    public List<Materia> obtenerTodasHabilitadas() {
+        List<Materia> lista = new ArrayList<>();
+        String sql = """
+            SELECT id, plan_id, nombre, anio, cuatrimestre, creditos, habilitado
+              FROM materias
+             WHERE habilitado = 1
+             ORDER BY nombre
+            """;
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                lista.add(new Materia(
+                        rs.getInt("id"),
+                        rs.getInt("plan_id"),
+                        rs.getString("nombre"),
+                        rs.getInt("anio"),
+                        rs.getInt("cuatrimestre"),
+                        rs.getInt("creditos"),
+                        rs.getBoolean("habilitado")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
 }

@@ -45,14 +45,17 @@ public class AnaliticoDAO {
                     LocalDateTime fechaCarga = fecha != null ? fecha.toLocalDateTime() : null;
                     double notaValor = rs.getDouble("nota");
                     Double nota = rs.wasNull() ? null : notaValor;
-                    salida.add(new AnaliticoMateria(
-                            rs.getString("nombre"),
-                            rs.getInt("anio"),
-                            rs.getInt("cuatrimestre"),
-                            nota,
-                            rs.getString("condicion"),
-                            fechaCarga
-                    ));
+                    String condicion = rs.getString("condicion");
+                    if ("APROBADA".equalsIgnoreCase(condicion) || "REGULAR".equalsIgnoreCase(condicion)) {
+                        salida.add(new AnaliticoMateria(
+                                rs.getString("nombre"),
+                                rs.getInt("anio"),
+                                rs.getInt("cuatrimestre"),
+                                nota,
+                                condicion,
+                                fechaCarga
+                        ));
+                    }
                 }
             }
         } catch (SQLException e) {

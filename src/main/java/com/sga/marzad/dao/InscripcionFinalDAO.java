@@ -72,7 +72,7 @@ public class InscripcionFinalDAO {
     }
 
     public boolean cancelar(int inscripcionId) {
-        String sql = "UPDATE inscripciones_finales SET estado = 'CANCELADA' WHERE id = ?";
+        String sql = "DELETE FROM inscripciones_finales WHERE id = ?";
         try (Connection conn = ConexionBD.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, inscripcionId);
@@ -100,6 +100,50 @@ public class InscripcionFinalDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return false;
+    }
+
+    /** Inscripcion de admin con validacion de regularidad */
+    public boolean inscribirAdmin(int alumnoId, int examenFinalId) {
+        ExamenFinal examenFinal = examenFinalDAO.obtenerPorId(examenFinalId);
+        if (examenFinal == null || !examenFinal.tieneCupo()) return false;
+        if (existeInscripcionActiva(alumnoId, examenFinalId)) return false;
+        if (!alumnoRegularEnMateria(alumnoId, examenFinal.getMateriaId())) return false;
+        return insertar(alumnoId, examenFinalId);
+    }
+
+    public boolean eliminarInscripcionPorAlumno(int examenFinalId, int alumnoId) {
+        String sql = "DELETE FROM inscripciones_finales WHERE examen_final_id = ? AND alumno_id = ?";
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, examenFinalId);
+            ps.setInt(2, alumnoId);
+            return ps.executeUpdate() == 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /** Valida si el alumno tiene la materia regular/aprobada (simplificada) */
+    private boolean alumnoRegularEnMateria(int alumnoId, int materiaId) {
+        String sqlNota = """
+            SELECT COUNT(1)
+              FROM inscripciones i
+              JOIN calificaciones c ON c.inscripcion_id = i.id
+             WHERE i.alumno_id = ? AND i.materia_id = ? AND c.nota >= 4
+            """;
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sqlNota)) {
+            ps.setInt(1, alumnoId);
+            ps.setInt(2, materiaId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) return true;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        // Si no hay notas aprobadas, considerar NO regular
         return false;
     }
 

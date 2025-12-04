@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.sga.marzad.controller.AdminFinalesController"
+            prefWidth="1000" prefHeight="650"
+            styleClass="main-bg">
+
+    <top>
+        <VBox spacing="6" alignment="CENTER" styleClass="panel-header">
+            <Label text="Gestion de Mesas de Examen" styleClass="label-title"/>
+            <Label text="Crear, editar y administrar inscriptos" styleClass="label-subtitle"/>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox spacing="14" padding="14" styleClass="panel">
+
+            <GridPane hgap="12" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints halignment="RIGHT" minWidth="110"/>
+                    <ColumnConstraints hgrow="ALWAYS"/>
+                    <ColumnConstraints halignment="RIGHT" minWidth="110"/>
+                    <ColumnConstraints hgrow="ALWAYS"/>
+                </columnConstraints>
+
+                <Label text="Materia:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="comboMateria" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                <Label text="Fecha:" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                <HBox spacing="8" GridPane.rowIndex="0" GridPane.columnIndex="3">
+                    <DatePicker fx:id="dpFecha"/>
+                    <TextField fx:id="txtHora" promptText="HH:mm" prefWidth="80"/>
+                </HBox>
+
+                <Label text="Aula:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <TextField fx:id="txtAula" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                <Label text="Cupo:" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+                <TextField fx:id="txtCupo" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+            </GridPane>
+
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+                <Button text="Nuevo" onAction="#onNuevo" styleClass="btn-secondary"/>
+                <Button text="Guardar" onAction="#onGuardar" styleClass="btn-primary"/>
+                <Button text="Eliminar" onAction="#onEliminar" styleClass="btn-danger"/>
+            </HBox>
+
+            <Label text="Mesas de examen" styleClass="label-section"/>
+            <TableView fx:id="tablaMesas" prefHeight="220" styleClass="table-view">
+                <columns>
+                    <TableColumn fx:id="colMateria" text="Materia" prefWidth="240"/>
+                    <TableColumn fx:id="colFecha" text="Fecha" prefWidth="160"/>
+                    <TableColumn fx:id="colAula" text="Aula" prefWidth="100"/>
+                    <TableColumn fx:id="colCupo" text="Cupo" prefWidth="80"/>
+                    <TableColumn fx:id="colInscriptos" text="Inscriptos" prefWidth="100"/>
+                </columns>
+            </TableView>
+
+            <HBox alignment="CENTER_RIGHT" spacing="10">
+                <Label text="Inscriptos en la mesa seleccionada" styleClass="label-section"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Inscribir alumno" onAction="#onInscribirAlumno" styleClass="btn-primary"/>
+            </HBox>
+
+            <TableView fx:id="tablaInscriptos" prefHeight="160" styleClass="table-view">
+                <columns>
+                    <TableColumn fx:id="colAlumno" text="Alumno" prefWidth="240"/>
+                    <TableColumn fx:id="colDni" text="DNI" prefWidth="120"/>
+                    <TableColumn fx:id="colEstado" text="Estado" prefWidth="120"/>
+                    <TableColumn fx:id="colAccionAlumno" text="Accion" prefWidth="120"/>
+                </columns>
+                <placeholder>
+                    <Label text="Seleccione una mesa para ver inscriptos"/>
+                </placeholder>
+            </TableView>
+        </VBox>
+    </center>
+
+</BorderPane>

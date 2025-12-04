@@ -117,7 +117,7 @@ public class InscripcionFinalController {
         Integer alumnoId = UsuarioSesion.getAlumnoId();
         Integer carreraId = UsuarioSesion.getCarreraId();
         if (alumnoId == null || carreraId == null) {
-            mostrarAlerta(Alert.AlertType.WARNING, "Falta información de la carrera activa.");
+            mostrarAlerta(Alert.AlertType.WARNING, "Falta informacion de la carrera activa.");
             return;
         }
 
@@ -128,16 +128,16 @@ public class InscripcionFinalController {
     private void inscribirse(ExamenFinal examenFinal) {
         Integer alumnoId = UsuarioSesion.getAlumnoId();
         if (alumnoId == null) {
-            mostrarAlerta(Alert.AlertType.ERROR, "No se encontró el alumno en la sesión.");
+            mostrarAlerta(Alert.AlertType.ERROR, "No se encontro el alumno en la sesion.");
             return;
         }
         if (inscripcionFinalDAO.existeInscripcionActiva(alumnoId, examenFinal.getId())) {
-            mostrarAlerta(Alert.AlertType.INFORMATION, "Ya estás inscripto en este final.");
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Ya estas inscripto en este final.");
             return;
         }
         boolean ok = inscripcionFinalDAO.insertar(alumnoId, examenFinal.getId());
         if (ok) {
-            mostrarAlerta(Alert.AlertType.INFORMATION, "Inscripción a final realizada.");
+            mostrarAlerta(Alert.AlertType.INFORMATION, "Inscripcion a final realizada.");
             recargarDatos();
         } else {
             mostrarAlerta(Alert.AlertType.ERROR, "No se pudo inscribir en el final seleccionado.");
@@ -146,17 +146,17 @@ public class InscripcionFinalController {
 
     private void cancelar(InscripcionFinal inscripcion) {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Cancelar inscripción");
-        confirm.setHeaderText("¿Confirmás la baja del final?");
+        confirm.setTitle("Cancelar inscripcion");
+        confirm.setHeaderText("Confirmas la baja del final?");
         confirm.setContentText(inscripcion.getMateriaNombre() + " - " + inscripcion.getFechaExamenFormateada());
         confirm.showAndWait().ifPresent(resp -> {
             if (resp == ButtonType.OK) {
                 boolean ok = inscripcionFinalDAO.cancelar(inscripcion.getId());
                 if (ok) {
-                    mostrarAlerta(Alert.AlertType.INFORMATION, "Inscripción cancelada.");
+                    mostrarAlerta(Alert.AlertType.INFORMATION, "Inscripcion cancelada.");
                     recargarDatos();
                 } else {
-                    mostrarAlerta(Alert.AlertType.ERROR, "No se pudo cancelar la inscripción.");
+                    mostrarAlerta(Alert.AlertType.ERROR, "No se pudo cancelar la inscripcion.");
                 }
             }
         });

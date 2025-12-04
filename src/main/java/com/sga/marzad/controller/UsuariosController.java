@@ -3,10 +3,13 @@ package com.sga.marzad.controller;
 import com.sga.marzad.dao.UsuarioDAO;
 import com.sga.marzad.dao.AlumnoDAO;
 import com.sga.marzad.dao.DocenteDAO;
+import com.sga.marzad.dao.CarreraDAO;
+import com.sga.marzad.dao.InscripcionCarreraDAO;
 import com.sga.marzad.model.Rol;
 import com.sga.marzad.model.Usuario;
 import com.sga.marzad.model.Alumno;
 import com.sga.marzad.model.Docente;
+import com.sga.marzad.model.Carrera;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -36,11 +39,14 @@ public class UsuariosController implements Initializable {
     @FXML private TextField txtUsername;
     @FXML private PasswordField txtPassword;
     @FXML private ComboBox<Rol> comboRol;
+    @FXML private ComboBox<Carrera> comboCarrera;
     @FXML private CheckBox chkHabilitado;
 
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
     private final AlumnoDAO alumnoDAO = new AlumnoDAO();
     private final DocenteDAO docenteDAO = new DocenteDAO();
+    private final CarreraDAO carreraDAO = new CarreraDAO();
+    private final InscripcionCarreraDAO inscCarreraDAO = new InscripcionCarreraDAO();
     private final ObservableList<Usuario> usuarios = FXCollections.observableArrayList();
     private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
@@ -61,6 +67,7 @@ public class UsuariosController implements Initializable {
         colCreado.setCellValueFactory(cell -> new SimpleStringProperty(formatearFecha(cell.getValue().getCreadoEn())));
         colActualizado.setCellValueFactory(cell -> new SimpleStringProperty(formatearFecha(cell.getValue().getActualizadoEn())));
         tableUsuarios.setItems(usuarios);
+        comboCarrera.setItems(FXCollections.observableArrayList(carreraDAO.obtenerCarrerasHabilitadas()));
     }
 
     private String formatearFecha(LocalDateTime fecha) {
@@ -91,6 +98,8 @@ public class UsuariosController implements Initializable {
         txtPassword.clear(); // por seguridad no mostramos password
         chkHabilitado.setSelected(u.isHabilitado());
         seleccionarRol(u.getRol());
+        seleccionarCarrera(u);
+        toggleCarreraVisible("ALUMNO".equalsIgnoreCase(u.getRol()));
     }
 
     private void seleccionarRol(String rolNombre) {
@@ -103,16 +112,54 @@ public class UsuariosController implements Initializable {
                 );
     }
 
+    private void seleccionarCarrera(Usuario u) {
+        if (!"ALUMNO".equalsIgnoreCase(u.getRol())) {
+            comboCarrera.getSelectionModel().clearSelection();
+            return;
+        }
+        int alumnoId = alumnoDAO.obtenerIdPorUsuarioId(u.getId());
+        if (alumnoId == -1) {
+            comboCarrera.getSelectionModel().clearSelection();
+            return;
+        }
+        var insc = inscCarreraDAO.obtenerInscripcionActivaPorAlumno(alumnoId);
+        if (insc == null) {
+            comboCarrera.getSelectionModel().clearSelection();
+            return;
+        }
+        comboCarrera.getItems().stream()
+                .filter(c -> c.getId() == insc.getCarreraId())
+                .findFirst()
+                .ifPresent(c -> comboCarrera.getSelectionModel().select(c));
+    }
+
+    @FXML
+    private void onRolChanged() {
+        Rol rol = comboRol.getValue();
+        boolean esAlumno = rol != null && "ALUMNO".equalsIgnoreCase(rol.getNombre());
+        toggleCarreraVisible(esAlumno);
+        if (!esAlumno) {
+            comboCarrera.getSelectionModel().clearSelection();
+        }
+    }
+
+    private void toggleCarreraVisible(boolean visible) {
+        comboCarrera.setDisable(!visible);
+        comboCarrera.setVisible(visible);
+    }
+
     private void limpiarFormulario() {
         txtId.clear();
         txtUsername.clear();
         txtPassword.clear();
         comboRol.getSelectionModel().clearSelection();
+        comboCarrera.getSelectionModel().clearSelection();
         chkHabilitado.setSelected(true);
+        toggleCarreraVisible(false);
     }
 
     @FXML
-    private void onNuevo() {
+    private void onLimpiar() {
         tableUsuarios.getSelectionModel().clearSelection();
         limpiarFormulario();
         txtUsername.requestFocus();
@@ -124,9 +171,14 @@ public class UsuariosController implements Initializable {
         String password = txtPassword.getText();
         Rol rol = comboRol.getValue();
         boolean habilitado = chkHabilitado.isSelected();
+        Carrera carrera = comboCarrera.getValue();
 
         if (username.isEmpty() || rol == null) {
             mostrarAlerta(Alert.AlertType.WARNING, "Complete usuario y rol.");
+            return;
+        }
+        if ("ALUMNO".equalsIgnoreCase(rol.getNombre()) && carrera == null) {
+            mostrarAlerta(Alert.AlertType.WARNING, "Seleccione una carrera para el alumno.");
             return;
         }
 
@@ -147,6 +199,7 @@ public class UsuariosController implements Initializable {
             Usuario creado = usuarioDAO.insert(nuevo);
             if (creado != null) {
                 asegurarPerfilBasico(creado);
+                asociarCarreraSiAlumno(creado, carrera);
                 recargarUsuarios(creado.getId());
                 mostrarAlerta(Alert.AlertType.INFORMATION, "Usuario creado correctamente.");
             } else {
@@ -161,6 +214,7 @@ public class UsuariosController implements Initializable {
 
             if (usuarioDAO.update(seleccionado)) {
                 asegurarPerfilBasico(seleccionado);
+                asociarCarreraSiAlumno(seleccionado, carrera);
                 recargarUsuarios(seleccionado.getId());
                 mostrarAlerta(Alert.AlertType.INFORMATION, "Usuario actualizado.");
             } else {
@@ -244,5 +298,13 @@ public class UsuariosController implements Initializable {
         } catch (Exception e) {
             // No interrumpir el flujo de UI si falla el relleno basico
         }
+    }
+
+    private void asociarCarreraSiAlumno(Usuario usuario, Carrera carrera) {
+        if (carrera == null || usuario.getId() == 0 || usuario.getRol() == null) return;
+        if (!"ALUMNO".equalsIgnoreCase(usuario.getRol())) return;
+        int alumnoId = alumnoDAO.obtenerIdPorUsuarioId(usuario.getId());
+        if (alumnoId == -1) return;
+        inscCarreraDAO.upsert(alumnoId, carrera.getId(), "APROBADA");
     }
 }

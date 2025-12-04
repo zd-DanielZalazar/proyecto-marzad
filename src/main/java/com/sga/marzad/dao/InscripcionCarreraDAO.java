@@ -41,4 +41,24 @@ public class InscripcionCarreraDAO {
         }
         return null;
     }
+
+    /** Inserta o actualiza la inscripcion a carrera (estado por defecto: APROBADA) */
+    public boolean upsert(int alumnoId, int carreraId, String estado) {
+        String sql = """
+            INSERT INTO inscripciones_carrera (alumno_id, carrera_id, estado)
+            VALUES (?, ?, ?)
+            ON DUPLICATE KEY UPDATE estado = VALUES(estado)
+            """;
+        try (Connection conn = ConexionBD.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, alumnoId);
+            ps.setInt(2, carreraId);
+            ps.setString(3, estado);
+            ps.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

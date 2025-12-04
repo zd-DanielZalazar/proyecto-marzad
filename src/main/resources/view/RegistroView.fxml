@@ -45,7 +45,7 @@
                 <TextField fx:id="txtDniAlumno" promptText="DNI" styleClass="text-field"/>
                 <TextField fx:id="txtCorreoAlumno" promptText="Correo" styleClass="text-field"/>
                 <Label text="Carrera:"/>
-                <ComboBox fx:id="comboCarreras"/>
+                <ComboBox fx:id="comboCarreras" promptText="Seleccione una carrera"/>
 
                 <HBox spacing="10" alignment="CENTER">
                 <DatePicker fx:id="dpFechaNacAlumno"/>

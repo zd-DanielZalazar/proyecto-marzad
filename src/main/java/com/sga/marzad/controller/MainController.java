@@ -106,20 +106,23 @@ public class MainController implements Initializable {
         boolean esAlumno = "ALUMNO".equalsIgnoreCase(rol);
         boolean esDocente = "DOCENTE".equalsIgnoreCase(rol);
 
-        if (esAdmin) {
+                if (esAdmin) {
             MenuItem usuariosItem = new MenuItem("Gestionar usuarios");
             usuariosItem.setOnAction(e -> abrirVentanaModal("/view/UsuariosView.fxml", "Gestion de usuarios"));
             Menu usuariosMenu = new Menu("Usuarios");
             usuariosMenu.getItems().add(usuariosItem);
-            // --------- MENÚ ADMIN ---------
+
             MenuItem altaCarreraMateriaItem = new MenuItem("Alta de carreras y materias");
             altaCarreraMateriaItem.setOnAction(e -> abrirVentanaModal("/view/AltaCarreraWizard.fxml", "Alta de carreras y materias"));
 
             MenuItem editarCarreraMateriaItem = new MenuItem("Editar carrera y materias");
             editarCarreraMateriaItem.setOnAction(e -> abrirVentanaModal("/view/CarrerasMateriasView.fxml", "Editar carrera y materias"));
 
+            MenuItem mesasFinalesItem = new MenuItem("Gestion de mesas de examen");
+            mesasFinalesItem.setOnAction(e -> abrirVentanaModal("/view/AdminFinalesView.fxml", "Gestion de mesas de examen"));
+
             Menu adminMenu = new Menu("Carrera");
-            adminMenu.getItems().addAll(altaCarreraMateriaItem, editarCarreraMateriaItem);
+            adminMenu.getItems().addAll(altaCarreraMateriaItem, editarCarreraMateriaItem, new SeparatorMenuItem(), mesasFinalesItem);
 
             menuBar.getMenus().add(0, adminMenu);
             menuBar.getMenus().add(0, usuariosMenu);
@@ -246,7 +249,7 @@ public class MainController implements Initializable {
             stage.showAndWait();
         } catch (Exception e) {
             e.printStackTrace();
-            mostrarAlertaInfo("No se pudo abrir la vista.");
+            mostrarAlertaInfo("No se pudo abrir la vista: " + e.getMessage());
         }
     }
 
@@ -379,5 +382,6 @@ public class MainController implements Initializable {
         return null;
     }
 }
+
 
 
