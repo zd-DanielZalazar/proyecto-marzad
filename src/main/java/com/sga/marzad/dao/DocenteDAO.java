@@ -270,4 +270,44 @@ public class DocenteDAO {
         }
         return docentes;
     }
+
+    /** Inserta un docente con datos basicos (para usuarios creados desde admin) */
+    public boolean insert(Docente d) {
+        String sqlConGenero = """
+            INSERT INTO docentes (usuario_id, nombre, apellido, legajo, correo, genero, habilitado)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """;
+        String sqlSinGenero = """
+            INSERT INTO docentes (usuario_id, nombre, apellido, legajo, correo, habilitado)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """;
+        try (Connection conn = ConexionBD.getConnection()) {
+            try (PreparedStatement ps = conn.prepareStatement(sqlConGenero)) {
+                ps.setInt(1, d.getUsuarioId());
+                ps.setString(2, d.getNombre());
+                ps.setString(3, d.getApellido());
+                ps.setString(4, d.getLegajo());
+                ps.setString(5, d.getCorreo());
+                ps.setString(6, d.getGenero());
+                ps.setBoolean(7, d.isHabilitado());
+                return ps.executeUpdate() == 1;
+            } catch (SQLException e) {
+                if (e.getMessage() != null && e.getMessage().contains("genero")) {
+                    try (PreparedStatement ps2 = conn.prepareStatement(sqlSinGenero)) {
+                        ps2.setInt(1, d.getUsuarioId());
+                        ps2.setString(2, d.getNombre());
+                        ps2.setString(3, d.getApellido());
+                        ps2.setString(4, d.getLegajo());
+                        ps2.setString(5, d.getCorreo());
+                        ps2.setBoolean(6, d.isHabilitado());
+                        return ps2.executeUpdate() == 1;
+                    }
+                }
+                throw e;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

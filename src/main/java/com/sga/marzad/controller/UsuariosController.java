@@ -1,8 +1,12 @@
 package com.sga.marzad.controller;
 
 import com.sga.marzad.dao.UsuarioDAO;
+import com.sga.marzad.dao.AlumnoDAO;
+import com.sga.marzad.dao.DocenteDAO;
 import com.sga.marzad.model.Rol;
 import com.sga.marzad.model.Usuario;
+import com.sga.marzad.model.Alumno;
+import com.sga.marzad.model.Docente;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -35,6 +39,8 @@ public class UsuariosController implements Initializable {
     @FXML private CheckBox chkHabilitado;
 
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
+    private final AlumnoDAO alumnoDAO = new AlumnoDAO();
+    private final DocenteDAO docenteDAO = new DocenteDAO();
     private final ObservableList<Usuario> usuarios = FXCollections.observableArrayList();
     private final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
@@ -109,6 +115,7 @@ public class UsuariosController implements Initializable {
     private void onNuevo() {
         tableUsuarios.getSelectionModel().clearSelection();
         limpiarFormulario();
+        txtUsername.requestFocus();
     }
 
     @FXML
@@ -139,6 +146,7 @@ public class UsuariosController implements Initializable {
             Usuario nuevo = new Usuario(0, username, password, rol.getNombre(), habilitado, null, null);
             Usuario creado = usuarioDAO.insert(nuevo);
             if (creado != null) {
+                asegurarPerfilBasico(creado);
                 recargarUsuarios(creado.getId());
                 mostrarAlerta(Alert.AlertType.INFORMATION, "Usuario creado correctamente.");
             } else {
@@ -152,6 +160,7 @@ public class UsuariosController implements Initializable {
             seleccionado.setHabilitado(habilitado);
 
             if (usuarioDAO.update(seleccionado)) {
+                asegurarPerfilBasico(seleccionado);
                 recargarUsuarios(seleccionado.getId());
                 mostrarAlerta(Alert.AlertType.INFORMATION, "Usuario actualizado.");
             } else {
@@ -193,5 +202,47 @@ public class UsuariosController implements Initializable {
         alert.setHeaderText(null);
         alert.setContentText(mensaje);
         alert.showAndWait();
+    }
+
+    /**
+     * Si el rol es ALUMNO o DOCENTE y no existe fila relacionada, crea un perfil basico
+     * para que el login no falle por falta de registro asociado.
+     */
+    private void asegurarPerfilBasico(Usuario usuario) {
+        String rolNombre = usuario.getRol() != null ? usuario.getRol().toUpperCase() : "";
+        try {
+            if ("ALUMNO".equals(rolNombre)) {
+                if (AlumnoDAO.buscarPorUsuarioId(usuario.getId()) == null) {
+                    Alumno nuevoAlumno = new Alumno(
+                            0,
+                            usuario.getId(),
+                            usuario.getUsername(),
+                            usuario.getUsername(),
+                            null,
+                            null,
+                            null,
+                            null,
+                            usuario.isHabilitado()
+                    );
+                    alumnoDAO.insert(nuevoAlumno);
+                }
+            } else if ("DOCENTE".equals(rolNombre)) {
+                if (DocenteDAO.buscarPorUsuarioId(usuario.getId()) == null) {
+                    Docente nuevoDocente = new Docente(
+                            0,
+                            usuario.getId(),
+                            usuario.getUsername(),
+                            usuario.getUsername(),
+                            "DOC" + usuario.getId(),
+                            usuario.getUsername() + "@mail.local",
+                            null,
+                            usuario.isHabilitado()
+                    );
+                    docenteDAO.insert(nuevoDocente);
+                }
+            }
+        } catch (Exception e) {
+            // No interrumpir el flujo de UI si falla el relleno basico
+        }
     }
 }
