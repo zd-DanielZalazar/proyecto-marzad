@@ -31,6 +31,9 @@ public class InscripcionMateriaController {
     @FXML
     public void initialize() {
         btnInscribir.getStyleClass().add("btn-primary");
+        // Wirear acciones explícitamente (FXML no define onAction).
+        comboMaterias.setOnAction(e -> mostrarEstadoMateria());
+        btnInscribir.setOnAction(e -> inscribirseEnMateria());
 
         colMateria.setCellValueFactory(new PropertyValueFactory<>("nombreMateria"));
         colFecha.setCellValueFactory(new PropertyValueFactory<>("fechaFormateada"));
