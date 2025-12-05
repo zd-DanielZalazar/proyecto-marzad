@@ -14,17 +14,15 @@ public class ConexionBD {
                     + "&serverTimezone=America/Argentina/Buenos_Aires";
     private static final String USER = "root";
     private static final String PASS = "root";
-    private static Connection conn;
 
     public static Connection getConnection() throws SQLException {
-        if (conn == null || conn.isClosed()) {
-            try {
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                conn = DriverManager.getConnection(URL, USER, PASS);
-            } catch (ClassNotFoundException e) {
-                throw new SQLException("Driver MySQL no encontrado", e);
-            }
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            // Se devuelve una nueva conexión por llamada para evitar que
+            // el cierre en métodos anidados invalide ResultSets abiertos.
+            return DriverManager.getConnection(URL, USER, PASS);
+        } catch (ClassNotFoundException e) {
+            throw new SQLException("Driver MySQL no encontrado", e);
         }
-        return conn;
     }
 }
